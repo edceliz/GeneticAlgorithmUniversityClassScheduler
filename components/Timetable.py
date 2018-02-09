@@ -6,16 +6,18 @@ import json
 # Used for displaying toggable timetable
 # TODO: Assess for possible different version of timetable widget
 class Timetable:
-    def __init__(self, table):
+    def __init__(self, table, data = False):
         self.table = table
         header = [['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']]
         with open('timeslots.json') as json_file:
             timeslots = json.load(json_file)['timeslots']
         settings = Settings.getSettings()
         header.append(timeslots[settings['starting_time']:settings['ending_time'] + 1])
-        self.data = []
-        for i in range(settings['ending_time'] + 1 - settings['starting_time']):
-            self.data.append(['Available', 'Available', 'Available', 'Available', 'Available', 'Available'])
+        self.data = data
+        if not data:
+            self.data = []
+            for i in range(settings['ending_time'] + 1 - settings['starting_time']):
+                self.data.append(['Available', 'Available', 'Available', 'Available', 'Available', 'Available'])
         self.model = TimetableModel(header, self.data)
         table.setModel(self.model)
         table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)

@@ -8,8 +8,15 @@ class MainWindow(Main.Ui_MainWindow):
         self.connectButtons()
         self.drawTrees()
 
+    # Connect Main component buttons to respective actions
     def connectButtons(self):
-        self.btnInstrAdd.clicked.connect(Instructor.Instructor)
+        self.btnInstrAdd.clicked.connect(lambda: self.openInstructor())
 
+    # Initialize trees and tables
     def drawTrees(self):
-        Instructor.drawTree(self.treeInstr)
+        self.instrTree = Instructor.Tree(self.treeInstr)
+
+    # Open Instructor Edit Modal
+    def openInstructor(self, id = False):
+        Instructor.Instructor(id)
+        self.instrTree.display()

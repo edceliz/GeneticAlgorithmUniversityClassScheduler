@@ -18,9 +18,15 @@ def setup():
           id INTEGER PRIMARY KEY,
           name TEXT NOT NULL,
           hours INTEGER NOT NULL,
-          schedule TEXT NOT NULL
+          schedule TEXT NOT NULL,
+          active BOOLEAN NOT NULL DEFAULT 1 CHECK (
+            active IN (0, 1)
+          )
         );
     """
     cursor.execute(create_instructors_table)
     conn.commit()
     conn.close()
+
+def getConnection():
+    return sqlite3.connect('database.db')
