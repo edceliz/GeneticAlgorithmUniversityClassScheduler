@@ -24,7 +24,54 @@ def setup():
           )
         );
     """
+    create_rooms_table = """
+        CREATE TABLE IF NOT EXISTS rooms (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          type TEXT NOT NULL,
+          schedule TEXT NOT NULL,
+          active BOOLEAN NOT NULL DEFAULT 1 CHECK (
+            active IN (0, 1)
+          )
+        );
+    """
+    create_subjects_table = """
+        CREATE TABLE IF NOT EXISTS subjects (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          hours REAL NOT NULL,
+          code TEXT NOT NULL,
+          description TEXT NOT NULL,
+          instructors TEXT NOT NULL,
+          divisible BOOLEAN NOT NULL DEFAULT 1 CHECK (
+            divisible IN (0, 1)
+          ),
+          type TEXT NOT NULL
+        );
+    """
+    create_sections_table = """
+        CREATE TABLE IF NOT EXISTS sections (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          schedule TEXT NOT NULL,
+          subjects TEXT NOT NULL,
+          active BOOLEAN NOT NULL DEFAULT 1 CHECK (
+            active IN (0, 1)
+          )
+        );
+    """
+    create_sharing_table = """
+        CREATE TABLE IF NOT EXISTS sharings (
+          id INTEGER PRIMARY KEY,
+          subjectId INTEGER NOT NULL,
+          sections TEXT NOT NULL
+        );
+    """
     cursor.execute(create_instructors_table)
+    cursor.execute(create_rooms_table)
+    cursor.execute(create_subjects_table)
+    cursor.execute(create_sections_table)
+    cursor.execute(create_sharing_table)
     conn.commit()
     conn.close()
 
