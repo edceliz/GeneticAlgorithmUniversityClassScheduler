@@ -106,96 +106,114 @@
       <NotNull>1</NotNull>
       <DefaultExpression>1</DefaultExpression>
     </column>
-    <key id="31" parent="8">
+    <column id="31" parent="8" name="stay">
+      <Position>6</Position>
+      <DataType>BOOLEAN|0</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <key id="32" parent="8">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="32" parent="8">
+    <check id="33" parent="8">
       <Predicate>active IN (0, 1)</Predicate>
     </check>
-    <column id="33" parent="9" name="id">
+    <check id="34" parent="8">
+      <Predicate>active IN (0, 1)</Predicate>
+    </check>
+    <column id="35" parent="9" name="id">
       <Position>1</Position>
       <DataType>INTEGER|0</DataType>
     </column>
-    <column id="34" parent="9" name="subjectId">
+    <column id="36" parent="9" name="subjectId">
       <Position>2</Position>
       <DataType>INTEGER|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="35" parent="9" name="sections">
+    <column id="37" parent="9" name="sections">
       <Position>3</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="36" parent="9">
+    <column id="38" parent="9" name="final">
+      <Position>4</Position>
+      <DataType>BOOLEAN|0</DataType>
+      <NotNull>1</NotNull>
+      <DefaultExpression>0</DefaultExpression>
+    </column>
+    <key id="39" parent="9">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <column id="37" parent="10" name="type">
+    <check id="40" parent="9">
+      <Predicate>final IN (0, 1)</Predicate>
+    </check>
+    <column id="41" parent="10" name="type">
       <Position>1</Position>
       <DataType>text|0</DataType>
     </column>
-    <column id="38" parent="10" name="name">
+    <column id="42" parent="10" name="name">
       <Position>2</Position>
       <DataType>text|0</DataType>
     </column>
-    <column id="39" parent="10" name="tbl_name">
+    <column id="43" parent="10" name="tbl_name">
       <Position>3</Position>
       <DataType>text|0</DataType>
     </column>
-    <column id="40" parent="10" name="rootpage">
+    <column id="44" parent="10" name="rootpage">
       <Position>4</Position>
       <DataType>integer|0</DataType>
     </column>
-    <column id="41" parent="10" name="sql">
+    <column id="45" parent="10" name="sql">
       <Position>5</Position>
       <DataType>text|0</DataType>
     </column>
-    <column id="42" parent="11" name="id">
+    <column id="46" parent="11" name="id">
       <Position>1</Position>
       <DataType>INTEGER|0</DataType>
     </column>
-    <column id="43" parent="11" name="name">
+    <column id="47" parent="11" name="name">
       <Position>2</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="44" parent="11" name="hours">
+    <column id="48" parent="11" name="hours">
       <Position>3</Position>
       <DataType>REAL|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="45" parent="11" name="code">
+    <column id="49" parent="11" name="code">
       <Position>4</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="46" parent="11" name="description">
+    <column id="50" parent="11" name="description">
       <Position>5</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="47" parent="11" name="instructors">
+    <column id="51" parent="11" name="instructors">
       <Position>6</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="48" parent="11" name="divisible">
+    <column id="52" parent="11" name="divisible">
       <Position>7</Position>
       <DataType>BOOLEAN|0</DataType>
       <NotNull>1</NotNull>
       <DefaultExpression>1</DefaultExpression>
     </column>
-    <column id="49" parent="11" name="type">
+    <column id="53" parent="11" name="type">
       <Position>8</Position>
       <DataType>TEXT|0</DataType>
       <NotNull>1</NotNull>
     </column>
-    <key id="50" parent="11">
+    <key id="54" parent="11">
       <ColNames>id</ColNames>
       <Primary>1</Primary>
     </key>
-    <check id="51" parent="11">
+    <check id="55" parent="11">
       <Predicate>divisible IN (0, 1)</Predicate>
     </check>
   </database-model>

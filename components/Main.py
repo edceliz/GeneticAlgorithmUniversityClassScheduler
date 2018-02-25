@@ -11,6 +11,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.connectButtons()
         self.drawTrees()
         self.tabWidget.setCurrentIndex(3)
+        self.openSection(2)
 
     # Connect Main component buttons to respective actions
     def connectButtons(self):
