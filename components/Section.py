@@ -8,17 +8,18 @@ import json
 class Section:
     def __init__(self, id):
         self.id = id
+        # Array of share IDs to be finalized
         self.shareId = []
-        # New instance of dialog
+        # Array of share IDs to be removed
+        self.removeShareId = []
         self.dialog = dialog = QtWidgets.QDialog()
-        # Initialize custom dialog
+        # From the qt_ui generated UI
         self.parent = parent = Parent.Ui_Dialog()
-        # Add parent to custom dialog
         parent.setupUi(dialog)
-        # Connect timetable widget with custom timetable model
         if id:
             self.fillForm()
         else:
+            # Create new instance of timetable
             self.table = Timetable.Timetable(parent.tableSchedule)
         self.setupSubjects()
         parent.btnFinish.clicked.connect(self.finish)
@@ -26,26 +27,38 @@ class Section:
         dialog.exec_()
 
     def setupSubjects(self):
+        # Setup subjects tree view
         self.tree = tree = self.parent.treeSubjects
         self.model = model = QtGui.QStandardItemModel()
         model.setHorizontalHeaderLabels(['ID', 'Available', 'Shared', 'Subject Code', 'Subject Name', 'Share ID'])
         tree.setModel(model)
         tree.setColumnHidden(0, True)
         tree.setColumnHidden(5, True)
-        model.itemChanged.connect(lambda item: self.toggleSharing(item))
+        # Populate tree with values
         conn = db.getConnection()
         cursor = conn.cursor()
+        # Get subjects for listing
         cursor.execute('SELECT id, name, code FROM subjects')
         subjects = cursor.fetchall()
+        # Subjects that the current section have
         currentSubjects = []
+        # Subjects that are shared to the current section
+        # [(sharing_id, subject_id, sections [str of list - load using json.loads])]
+        sharedSubjects = []
         if self.id:
             cursor.execute('SELECT subjects FROM sections WHERE id = ?', [self.id])
+            # Convert result into list of int
             currentSubjects = list(map(lambda id: int(id), json.loads(cursor.fetchall()[0][0])))
-        # TODO: Implement shared subjects
-        # SHARED SUBJECTS NOT YET SUPPORTED!
-        sharedSubjects = []
-        # for index in range(currentSubjects):
-            # cursor.execute('SELECT id, sections FROM sharings WHERE subjectId = ?', [currentSubjects[index]])
+            # Get active sharing by subject
+            for id in currentSubjects:
+                cursor.execute('SELECT id, subjectId, sections FROM sharings WHERE subjectId = ? AND final = 1', [id])
+                sharedSubjects.append(cursor.fetchone())
+            sharedSubjects = [sharing for sharing in sharedSubjects if sharing]
+            # Get section names
+            # {id: name}
+            sectionNames = []
+            cursor.execute('SELECT id, name FROM sections WHERE active = 1')
+            sectionNames = dict(cursor.fetchall())
         conn.close()
         for subject in subjects:
             subjectId = QtGui.QStandardItem(str(subject[0]))
@@ -57,31 +70,49 @@ class Section:
             shared = QtGui.QStandardItem('')
             shared.setCheckable(True)
             shared.setEditable(False)
+            shareId = QtGui.QStandardItem()
+            shareId.setEditable(False)
+            for sharing in sharedSubjects:
+                if sharing[1] != subject[0]:
+                    continue
+                sectionList = list(map(lambda id: int(id), json.loads(sharing[2])))
+                if self.id not in sectionList:
+                    continue
+                sectionList.remove(self.id)
+                sectionList = ', '.join(list(map(lambda id: sectionNames[id], sectionList)))
+                shared.setText(sectionList)
+                shared.setCheckState(2)
+                shareId.setText(str(sharing[0]))
             code = QtGui.QStandardItem(subject[2])
             code.setEditable(False)
             name = QtGui.QStandardItem(subject[1])
             name.setEditable(False)
-            shareId = QtGui.QStandardItem()
-            shareId.setEditable(False)
             model.appendRow([subjectId, availability, shared, code, name, shareId])
+        model.itemChanged.connect(lambda item: self.toggleSharing(item))
 
     def toggleSharing(self, item):
-        if item.column() != 2:
-            return False
-        subjectId = self.model.data(self.model.index(item.row(), 0))
-        shareToggle = self.model.item(item.row(), 2).checkState()
-        if shareToggle == 2 and not self.model.item(item.row(), 2).text():
-            shareData = Share.Share(subjectId, self.id).getShareData()
-            if not shareData[0]:
-                return False
-            shareId = shareData[0]
-            self.shareId.append(shareId)
-            self.model.item(item.row(), 5).setText(str(shareId))
-            self.model.item(item.row(), 2).setText(shareData[1])
-        elif shareToggle == 0 and self.model.item(item.row(), 2).text():
-            self.shareId.remove(int(self.model.item(item.row(), 5).text()))
-            self.model.item(item.row(), 5).setText('')
-            self.model.item(item.row(), 2).setText('')
+        if item.column() == 2:
+            subjectId = self.model.data(self.model.index(item.row(), 0))
+            shareToggle = self.model.item(item.row(), 2).checkState()
+            if shareToggle == 2 and not self.model.item(item.row(), 2).text():
+                shareData = Share.Share(subjectId, self.id).getShareData()
+                if not shareData[0]:
+                    return False
+                shareId = shareData[0]
+                self.shareId.append(shareId)
+                self.model.item(item.row(), 5).setText(str(shareId))
+                self.model.item(item.row(), 2).setText(shareData[1])
+                self.model.item(item.row(), 1).setCheckState(2)
+            elif shareToggle == 0 and self.model.item(item.row(), 2).text():
+                if int(self.model.item(item.row(), 5).text()) in self.shareId:
+                    self.shareId.remove(int(self.model.item(item.row(), 5).text()))
+                else:
+                    self.removeShareId.append(int(self.model.item(item.row(), 5).text()))
+                self.model.item(item.row(), 5).setText('')
+                self.model.item(item.row(), 2).setText('')
+        elif item.column() == 1:
+            if self.model.item(item.row(), 1).checkState() == 0 and self.model.item(item.row(), 5).text():
+                self.model.item(item.row(), 2).setCheckState(0)
 
     def fillForm(self):
         conn = db.getConnection()
@@ -104,14 +135,18 @@ class Section:
             if self.model.item(row, 1).checkState() == 2:
                 subjects.append(self.model.item(row, 0).text())
         subjects = json.dumps(subjects)
-        # TODO: Add sharing support
         conn = db.getConnection()
         cursor = conn.cursor()
+        if self.removeShareId:
+            for id in self.removeShareId:
+                cursor.execute('UPDATE sharings SET final = 0 WHERE id = ?', [id])
+        if self.shareId:
+            for id in self.shareId:
+                cursor.execute('UPDATE sharings SET final = 1 WHERE id = ?', [id])
         if self.id:
-            # TODO: Add update
-            pass
+            cursor.execute('UPDATE sections SET name = ?, schedule = ?, subjects = ?, stay = ? WHERE id = ?', [name, schedule, subjects, stay, self.id])
         else:
-            cursor.execute('INSERT INTO sections(name, schedule, subjects, stay) VALUES (?, ?, ?, ?)', [name, schedule, subjects, stay])
+            cursor.execute('INSERT INTO sections (name, schedule, subjects, stay) VALUES (?, ?, ?, ?)', [name, schedule, subjects, stay])
         conn.commit()
         conn.close()
         self.dialog.close()

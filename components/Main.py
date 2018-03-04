@@ -3,6 +3,8 @@ from components import Instructor
 from components import Room
 from components import Subject
 from components import Section
+from components import ScenarioManager
+from components import ResultViewer
 
 class MainWindow(Main.Ui_MainWindow):
     def __init__(self, parent):
@@ -10,8 +12,12 @@ class MainWindow(Main.Ui_MainWindow):
         self.setupUi(parent)
         self.connectButtons()
         self.drawTrees()
-        self.tabWidget.setCurrentIndex(3)
-        self.openSection(2)
+        # Tab change listener
+        self.tabWidget.currentChanged.connect(lambda idx: self.tabListener(idx))
+        # Select default tab index
+        self.tabWidget.setCurrentIndex(4)
+        self.btnScenResult.click()
+
 
     # Connect Main component buttons to respective actions
     def connectButtons(self):
@@ -19,6 +25,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.btnRoomAdd.clicked.connect(lambda: self.openRoom())
         self.btnSubjAdd.clicked.connect(lambda: self.openSubject())
         self.btnSecAdd.clicked.connect(lambda: self.openSection())
+        self.btnScenResult.clicked.connect(lambda: self.openResult())
 
     # Initialize trees and tables
     def drawTrees(self):
@@ -26,8 +33,10 @@ class MainWindow(Main.Ui_MainWindow):
         self.roomTree = Room.Tree(self.treeRoom)
         self.subjTree = Subject.Tree(self.treeSubj)
         self.secTree = Section.Tree(self.treeSec)
+        self.scenTree = ScenarioManager.Tree(self.treeScen)
 
-    # Open Instructor Edit Modal
+    # Handle component openings
+
     def openInstructor(self, id = False):
         Instructor.Instructor(id)
         self.instrTree.display()
@@ -43,3 +52,10 @@ class MainWindow(Main.Ui_MainWindow):
     def openSection(self, id = False):
         Section.Section(id)
         self.secTree.display()
+
+    def tabListener(self, index):
+        if index == 4:
+            self.scenTree.display()
+
+    def openResult(self):
+        ResultViewer.ResultViewer()
