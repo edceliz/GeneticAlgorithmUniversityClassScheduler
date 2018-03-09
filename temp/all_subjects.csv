@@ -1,0 +1,158 @@
+code,description,type,hours,splittable
+ENGL101,Communication Skills 1,lec,3,1
+MATH101,College Algebra,lec,3,1
+MATH110,College Trigonometry,lec,3,1
+CS101,Introduction to Computing,lec,2,1
+CS101L,Introduction to Computing,lab,1,0
+COMP101,Knowledge Work Software and Presentation Skills,lec,2,1
+COMP101L,Knowledge Work Software and Presentation Skills,lab,1,0
+ETHNS101,Euthenics 1,lec,1,1
+ENGL102,Communication Skills 2,lec,3,1
+PSYC101,General Psychology,lec,3,1
+FILI101,Komunikasyon sa Akademikong Filipino,lec,3,1
+MATH213,Calculus with Analytic Geometry 1,lec,3,1
+CS201,Computer Programming 1,lec,2,1
+CS201L,Computer Programming 1,lab,1,0
+COMP111,Introdction to Information Systems,lec,2,1
+COMP111L,Introdction to Information Systems,lab,1,0
+ETHNS102,Euthenics 2,lec,1,1
+ENGL201,Speech Communication 1,lec,3,1
+FILI102,Pagbasa at Pagsulat Tungo sa Pananaliksik,lec,3,1
+PSCI101,"Philippine History, Politics, Governance & Constitution",lec,3,1
+MATH214,Calculus with Analytic Geometry 2,lec,4,1
+NSCI101,General Chemistry,lec,2,1
+NSCI101L,General Chemistry,lab,1,0
+COMP121,Introduction to World Wide Web,lec,2,1
+COMP121L,Introduction to World Wide Web,lab,1,0
+PHYED101,Physical Fitness,lec,2,1
+ENGL301,"Technical, Scientific and Business English",lec,3,1
+ECON101,Principles of Economics with Agrarian Reform & Taxation,lec,3,1
+SSCI101,Society & Culture with FP/DA & Prevn/HIV/SARS Prevn,lec,3,1
+MATH215,Calculus with Analytic Geometry 3,lec,4,1
+COMP134,Current Trends in IT (STCABS),lec,2,1
+COMP134L,Current Trends in IT (STCABS),lab,1,0
+CS202,Computer Programming 2,lec,2,1
+CS202L,Computer Programming 2,lab,1,0
+PHYED111,Rhythmic Activities,lec,2,0
+NSTP101,National Service Training Program 1,lec,2,0
+HUMA111,Art Appreciation,lec,3,1
+ENGL311,Philippine Literature,lec,3,1
+MATH200,Statistics and Probability,lec,3,1
+CS302,Object Oriented Programming,lec,2,1
+CS302L,Object Oriented Programming,lab,1,0
+CS301,Computer Programming 3 (Web Programming & Dev't),lec,2,1
+CS301L,Computer Programming 3 (Web Programming & Dev't),lab,1,0
+CS332,"Computer System Org., Archtr. & Assembly Lang. Prog.",lec,2,1
+CS332L,"Computer System Org., Archtr. & Assembly Lang. Prog.",lab,1,0
+MATH232,Discrete Structures 1,lec,3,1
+PHYED121,Individual/Dual Sports,lec,2,0
+NSTP102,National Service Training Program 2,lec,2,0
+HUMA101,Philosophy of Man,lec,3,1
+NSCI111,College Physics 1,lec,2,1
+NSCI111L,College Physics 1,lab,1,0
+CS321,Data Structures & Algorithm Analysis,lec,2,1
+CS321L,Data Structures & Algorithm Analysis,lab,1,0
+MATH233,Discrete Structures 2,lec,3,1
+CS377,Application Lifecycle Mgmt (HP),lec,2,1
+CS377L,Application Lifecycle Mgmt (HP),lab,1,0
+PHYED131,Team Sports,lec,2,0
+IT211,CISCO 1,lec,2,1
+IT211L,CISCO 1,lab,1,0
+CS311,Principles of Programming Language with Compiler,lec,2,1
+CS311L,Principles of Programming Language with Compiler,lab,1,0
+CS312,Automata and Formal Language Theory,lec,3,1
+CS372,Introduction to Software Engineering,lec,2,1
+CS372L,Introduction to Software Engineering,lab,1,0
+CS361,Algorithm Analysis and Design,lec,3,1
+CS376,Load Testing (HP),lec,2,1
+CS376L,Load Testing (HP),lab,1,0
+RSCH400,Research 1A,lec,1,1
+SSCI111,Life & Works of Jose Rizal,lec,3,1
+CS342,Principles of Operating Systems and its Applications,lec,2,1
+CS342L,Principles of Operating Systems and its Applications,lab,1,0
+CS251,Database Management System 1,lec,2,1
+CS251L,Database Management System 1,lab,1,0
+CPE202,Logic Design & Digital Computer Circuits,lec,2,1
+CPE202L,Logic Design & Digital Computer Circuits,lab,1,0
+CS279,Unified Functional Testing (HP),lec,2,1
+CS279L,Unified Functional Testing (HP),lab,1,0
+CS362,Modelling and Simulation,lec,2,1
+CS362L,Modelling and Simulation,lab,1,0
+CS411,Professional Ethics in IT,lec,3,1
+CS421L,CS Practicum,lab,1,0
+CS401,CS Thesis,lec,1,0
+CS421L,IT Practicum,lab,1,0
+ACTG100,Fundamental of Accounting Theory & Practice 1A,lec,2,1
+ACTG100L,Fundamental of Accounting Theory & Practice 1A,lab,1,0
+CS352,Database Management System 2,lec,2,1
+CS352L,Database Management System 2,lab,1,0
+IT212,CISCO 2,lec,2,1
+IT212L,CISCO 2,lab,1,0
+IT301,System Analysis and Design,lec,2,1
+IT301L,System Analysis and Design,lab,1,0
+IT213,CISCO 3,lec,2,1
+IT213L,CISCO 3,lab,1,0
+IT214,CISCO 4,lec,2,1
+IT214L,CISCO 4,lab,1,0
+CS332,Multimedia Systems,lec,2,1
+CS332L,Multimedia Systems,lab,1,0
+IT401,IT Capstone Project,lec,1,0
+MATH111,Plane and Spherical Trigonometry,lec,3,1
+ENG101,Engineering Drawing,lab,1,1
+MATH102,Advanced Algebra,lec,2,1
+MATH112,Solid Mensuration,lec,3,1
+MATH113,Analytic Geometry,lec,3,1
+MATH211,Differential Calculus,lec,4,1
+MATH231,Discrete Mathematics,lec,3,1
+MATH212,Integral Calculus,lec,4,1
+MATH221,Differential Equations,lec,3,1
+ENG201,Statics of Rigid Bodies,lec,3,1
+EE201,Electric Circuits Theory 1,lec,3,1
+EE201L,Electric Circuits Theory 1,lab,1,0
+ECE201,Electronics Devices and Circuits,lec,3,1
+ECE201L,Electronics Devices and Circuits,lab,1,0
+MATH311,Advanced Engineering Mathematics,lec,3,1
+ENG202,Dynamics of Rigid Bodies,lec,3,1
+EE202,Electric Circuits Theory 2,lec,3,1
+EE202L,Electric Circuits Theory 2,lab,1,0
+ECE202,Electronics Circuits Analysis and Design,lec,3,1
+ECE202L,Electronics Circuits Analysis and Design,lab,1,0
+CPE201,Logic Circuits & Switching Theory,lec,3,1
+CPE201L,Logic Circuits & Switching Theory,lab,1,0
+CS321,Data Structures & Algorithm Analysis,lec,3,1
+CS321L,Data Structures & Algorithm Analysis,lab,1,0
+HUMA102,Introduction to Symbolic Logic,lec,3,1
+ENG211,Mechanics of Deformable Bodies,lec,3,1
+ECE301,Principles of Communication,lec,3,1
+ECE301L,Principles of Communication,lab,1,1
+CPE301,Advanced Logic Circuits Design,lec,3,1
+CPE301L,Advanced Logic Circuits Design,lab,1,0
+EE311,Feedback and Control System,lec,3,1
+EE311L,Feedback and Control System,lab,1,0
+CS331,"Computer System Org., Archtr. & Assembly Lang. Prog.",lec,3,1
+CS331L,"Computer System Org., Archtr. & Assembly Lang. Prog.",lab,1,0
+ENG111L,Computer Aided Drafting,lab,1,0
+ENG231,Safety Management,lec,3,1
+ECE231,"Signals, Spectra & Digital Signal Processing",lec,3,1
+ECE231L,"Signals, Spectra & Digital Signal Processing",lab,1,0
+ECE311,Data Communications 1,lec,3,1
+ECE311L,Data Communications 1,lab,1,0
+CPE311,Computer System Architecture,lec,3,1
+CPE311L,Computer System Architecture,lab,1,0
+CPE101L,Computer Hardware Fundamentals,lab,1,0
+ENG301,Engineering Economy,lec,3,1
+ECE312,Data Communications 2,lec,3,1
+ECE312L,Data Communications 2,lab,1,0
+CPE312,Microprocessor Systems,lec,3,1
+CPE312L,Microprocessor Systems,lab,1,0
+CPE321L,Computer Engineering Drafting and Design,lab,1,0
+CS341,Principles of Operating Systems and its Applications,lec,3,1
+CS341L,Principles of Operating Systems and its Applications,lab,1,0
+ENG302,Engineering Management,lec,3,1
+CPE400,CpE Design Project 1,lec,1,1
+ENTR101,Entrepreneurship,lec,3,1
+CPE401L,CpE Design Project 2,lab,1,0
+ENG421,Engineering Practicum,lec,1,1
+ENG241,Introduction to Environmental Engineering,lec,3,1
+ENG431L,Seminars and Field Trip,lab,1,0
+ENG411,Engineering Ethics and Computer Laws,lec,2,1
