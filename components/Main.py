@@ -1,15 +1,11 @@
-import psutil
-import time
-from PyQt5 import QtCore
-
 from components import Instructor
 from components import ResultViewer
 from components import Room
 from components import ScenarioManager
 from components import Section
 from components import Subject
+from components import Generate
 from qt_ui.v1 import Main
-
 
 class MainWindow(Main.Ui_MainWindow):
     def __init__(self, parent):
@@ -65,4 +61,4 @@ class MainWindow(Main.Ui_MainWindow):
         ResultViewer.ResultViewer()
 
     def openGenerate(self):
-        pass
+        Generate.Generate()
