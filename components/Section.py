@@ -140,7 +140,13 @@ class Section:
         cursor = conn.cursor()
         if self.removeShareId:
             for id in self.removeShareId:
-                cursor.execute('UPDATE sharings SET final = 0 WHERE id = ?', [id])
+                cursor.execute('SELECT sections FROM sharings WHERE id = ?', [id])
+                result = list(map(int, json.loads(cursor.fetchone()[0])))
+                if len(result) > 2:
+                    result.remove(self.id)
+                    cursor.execute('UPDATE sharings SET sections = ? WHERE id = ?', [json.dumps(result), id])
+                else:
+                    cursor.execute('UPDATE sharings SET final = 0 WHERE id = ?', [id])
         if self.shareId:
             for id in self.shareId:
                 cursor.execute('UPDATE sharings SET final = 1 WHERE id = ?', [id])
