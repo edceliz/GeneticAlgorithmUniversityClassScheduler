@@ -81,8 +81,6 @@ class Subject:
             if self.model.item(row, 1).checkState() == 0:
                 continue
             instructors.append(self.model.item(row, 0).text())
-        if not instructors:
-            return False
         name = self.parent.lineEditName.text()
         code = self.parent.lineEditCode.text()
         hours = self.parent.lineEditHours.text()
@@ -131,11 +129,13 @@ class Tree:
             name.setEditable(False)
             type = QtGui.QStandardItem(entry[3].upper())
             type.setEditable(False)
-            instructorID = list(map(lambda id: int(id), json.loads(entry[4])))
+            instructorID = list(set(map(lambda id: int(id), json.loads(entry[4]))).intersection(set(instructorList.keys())))
             if len(instructorID) > 3:
                 instructorText = ', '.join(list(map(lambda id: instructorList[id], instructorID[0:3]))) + ' and ' + str(len(instructorID) - 3) + ' more'
-            else:
+            elif len(instructorID) > 0:
                 instructorText = ', '.join(list(map(lambda id: instructorList[id], instructorID)))
+            else:
+                instructorText = ''
             instructors = QtGui.QStandardItem(instructorText)
             instructors.setEditable(False)
             edit = QtGui.QStandardItem()

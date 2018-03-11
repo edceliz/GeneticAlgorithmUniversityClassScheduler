@@ -43,6 +43,8 @@ class Tree:
                 # List subject instructors
                 subjectInstructors = list(map(lambda id: int(id), json.loads(subjects[subject][3])))
                 for instructor in subjectInstructors:
+                    if instructor not in instructors:
+                        continue
                     sectionSubject.appendRow([QtGui.QStandardItem(instructors[instructor])])
                 sectionName.appendRow([sectionSubject])
             self.model.appendRow([sectionName])

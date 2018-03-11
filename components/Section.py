@@ -97,6 +97,7 @@ class Section:
             if shareToggle == 2 and not self.model.item(item.row(), 2).text():
                 shareData = Share.Share(subjectId, self.id).getShareData()
                 if not shareData[0]:
+                    self.model.item(item.row(), 2).setCheckState(0)
                     return False
                 shareId = shareData[0]
                 self.shareId.append(shareId)

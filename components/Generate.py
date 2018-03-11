@@ -33,7 +33,6 @@ class Generate:
             self.resourceWorker.running = True
         else:
             self.resourceWorker.running = False
-            print(self.totalResource)
 
     def startWorkers(self):
         self.resourceWorker = ResourceTrackerWorker()
@@ -50,6 +49,13 @@ class Generate:
         self.parent.lblCPU.setText('CPU Usage: {}%'.format(resource[0]))
         self.parent.lblMemory.setText('Memory Usage: {}% - {} MB'.format(resource[1][0], resource[1][1]))
 
+    def cleanDatabase(self):
+        conn = db.getConnection()
+        cursor = conn.cursor()
+
+        conn.commit()
+        conn.close()
+
 class ResourceTrackerWorker(QtCore.QThread):
     signal = QtCore.pyqtSignal(object)
     running = True
@@ -59,12 +65,6 @@ class ResourceTrackerWorker(QtCore.QThread):
 
     def __del__(self):
         self.wait()
-
-    def pause(self):
-        self.wait()
-
-    def resume(self):
-        self.start()
 
     def run(self):
         while(True):

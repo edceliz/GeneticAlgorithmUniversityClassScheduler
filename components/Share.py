@@ -52,16 +52,6 @@ class Share:
             self.model.appendRow([id, sectionList, sectionID])
         # TODO: Get existing sharings
 
-    def fillForm(self):
-        conn = db.getConnection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT name, schedule, stay FROM sections WHERE id = ?', [self.id])
-        result = cursor.fetchone()
-        conn.close()
-        self.parent.lineEditName.setText(str(result[0]))
-        self.parent.checkStay.setChecked(result[2])
-        self.table = Timetable.Timetable(self.parent.tableSchedule, json.loads(result[1]))
-
     def finish(self):
         if not self.tree.selectedIndexes():
             return False
