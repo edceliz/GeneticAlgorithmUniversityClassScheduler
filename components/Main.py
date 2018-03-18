@@ -26,6 +26,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.btnSecAdd.clicked.connect(lambda: self.openSection())
         self.btnScenResult.clicked.connect(lambda: self.openResult())
         self.btnScenGenerate.clicked.connect(lambda: self.openGenerate())
+        self.btnScenGenerate.click()
 
     # Initialize trees and tables
     def drawTrees(self):
