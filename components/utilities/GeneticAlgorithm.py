@@ -56,6 +56,8 @@ class GeneticAlgorithm(QtCore.QThread):
 
     def generateSubjectPlacement(self, sectionId, subjectId):
         subject = self.data['subjects'][subjectId]
+        forceMeeting = self.settings['force_meeting_patterns']
+        print(forceMeeting)
         hours = subject[1]
         type = subject[6]
         divisible = subject[5]
@@ -65,11 +67,11 @@ class GeneticAlgorithm(QtCore.QThread):
             room = random.choice(list(self.data['rooms'].keys()), 1)[0]
             if type != 'any':
                 room = room if rooms[room][1] == type else False
-        # print(self.settings['force_meeting_patterns'])
         meetingPattern = []
-        # TODO: Calculate room division and pattern
+        meetingPatterns = [[0,2,4], [1,3]]
         if hours > 1.5 and ((hours / 3) % .5 == 0 or (hours / 2) % .5 == 0):
-            print('{} is divisible'.format(hours))
+            if (hours / 3) % .5 == 0 and (hours / 2) % .5 == 0:
+                print('{} is divisible by 2 and 3'.format(hours))
         else:
             print('{} is not divisible'.format(hours))
             # Assign normal one day/week
@@ -122,3 +124,39 @@ class ScheduleChromosome:
 
     def getData(self):
         return self.data
+
+class Chromosome:
+    fitness = 0
+    mutationRate = 0
+    errors = []
+    data = {
+        'sections': {},
+        'sharings': {},
+        'instructors': {},
+        'rooms': {}
+    }
+
+    def __init__(self, data):
+        self.data = data
+        self.buildChromosome()
+
+    def buildChromosome(self):
+        pass
+
+    def insertSchedule(self, schedule):
+        pass
+
+    def validateSchedule(self, schedule):
+        pass
+
+    def isRoomTimeslotAvailable(self):
+        pass
+
+    def isSectionTimeslotAvailable(self):
+        pass
+
+    def isInstructorTimeslotAvailable(self):
+        pass
+
+    def getData(self):
+        pass
