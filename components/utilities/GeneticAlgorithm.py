@@ -16,6 +16,8 @@ class GeneticAlgorithm(QtCore.QThread):
         'sharings': [],
         'subjects': []
     }
+    tempChromosome = None
+    tempSections = None
 
     def __init__(self, data):
         self.data = data
@@ -26,103 +28,104 @@ class GeneticAlgorithm(QtCore.QThread):
         self.wait()
 
     def initialization(self):
-        for i in range(1):
-        # for i in range(self.settings['minimum_population']):
-            chr = Chromosome(self.data)
-            # sections = copy.deepcopy(self.data['sections'])
-            # sectionsSubjects = list(map(lambda section: sections[section][2], sections))
-            # maxLength = max(len(subject) for subject in sectionsSubjects)
-            # sharingPositions = {}
-            # sharings = self.data['sharings']
-            # for i in range(maxLength):
-            #     for section in sections:
-            #         if sections[section][2]:
-            #             subjectToPlace = sections[section][2][-1]
-            #             for sharing in sharings:
-            #                 if subjectToPlace == sharings[sharing][0] and section in \
-            #                         sharings[sharing][1]:
-            #                     # Place and put it in sharing, if sharing is already in, skip
-            #                     if sharing not in sharingPositions:
-            #                         self.generateSubjectPlacement(sharings[sharing][1],
-            #                                                             sharings[sharing][0])
-            #                         sharingPositions[sharing] = 123
-            #                     else:
-            #                         pass
-            #                 else:
-            #                     self.generateSubjectPlacement(section, sections[section][2][-1])
-            #                     pass
-            #             sections[section][2].pop()
+        for i in range(self.settings['minimum_population']):
+            self.tempChromosome = Chromosome(self.data)
+            self.tempSections = sections = {key: [value[2], value[3]] for (key, value) in copy.deepcopy(self.data['sections']).items()}
+            rooms = list(self.data['rooms'].keys())
+            for section in sections:
+                if sections[section][1]:
+                    room = False
+                    while not room:
+                        candidate = np.random.choice(rooms)
+                        if self.data['rooms'][candidate][1] == 'lec':
+                            room = candidate
+                    sections[section][1] = room
+            # TODO: Sharing initialization priority
+            self.generateSubjectPlacementsForSections(sections)
+            self.chromosomes.append(self.tempChromosome)
+            print('Done')
 
-    def generateSubjectPlacement(self, sectionId, subjectId):
-        subject = self.data['subjects'][subjectId]
-        forceMeeting = self.settings['force_meeting_patterns']
-        print(forceMeeting)
-        hours = subject[1]
-        type = subject[6]
-        divisible = subject[5]
-        room = False
-        rooms = self.data['rooms']
-        while not room:
-            room = random.choice(list(self.data['rooms'].keys()), 1)[0]
-            if type != 'any':
-                room = room if rooms[room][1] == type else False
-        meetingPattern = []
-        meetingPatterns = [[0,2,4], [1,3]]
+    def generateSubjectPlacementsForSections(self, sections):
+        maxSubjects = max(len(subjects[0]) for subjects in sections.values())
+        for i in range(maxSubjects):
+            for section in sections:
+                print(sections[section][0])
+                if len(sections[section][0]):
+                    self.generateSubjectPlacement(section, sections[section][0][-1])
+                    if len(sections[section][0]) == 1:
+                        sections[section][0] = []
+                    else:
+                        sections[section][0].pop()
+
+    def generateSubjectPlacement(self, section, subject):
+        generating = True
+        generationAttempt = 0
+        error = None
+        rooms = list(self.data['rooms'].keys())
+        room = self.tempSections[section][1]
+        subjectTimeDetails = []
+        instructor = None
+        while generating:
+            if error == 1 or error is None:
+                if error == 1 or error == 2:
+                    if not self.tempSections[section][1]:
+                        room = np.random.choice([room, False])
+                    if room:
+                        subjectTimeDetails = self.generateTimeDetails(subject)
+                while not room and not self.tempSections[section][1]:
+                    candidate = np.random.choice(rooms)
+                    if self.data['subjects'][subject][6] == self.data['rooms'][candidate][1]:
+                        room = candidate
+                # ADD LABORATORY SUPPORT FOR STAY IN ROOM!
+            if error == 2 or error is None:
+                subjectTimeDetails = self.generateTimeDetails(subject)
+            if error == 3 or error is None:
+                if error == 3:
+                    instructor = np.random.choice([instructor, False])
+                    if instructor:
+                        subjectTimeDetails = self.generateTimeDetails(subject)
+                    else:
+                        instructor = np.random.choice(self.data['subjects'][subject][4])
+                else:
+                    instructor = np.random.choice(self.data['subjects'][subject][4])
+            error = self.tempChromosome.insertSchedule([room, [section], subject, instructor, *subjectTimeDetails])
+            if error is True:
+                return True
+            # if generationAttempt == self.settings['generation_tolerance']:
+            #     print('reached attempt')
+            #     return False
+            generationAttempt += 1
+
+    def generateTimeDetails(self, subject):
+        meetingPatterns = [[0, 2, 4], [1, 3]]
+        hours = self.data['subjects'][subject][1]
         if hours > 1.5 and ((hours / 3) % .5 == 0 or (hours / 2) % .5 == 0):
             if (hours / 3) % .5 == 0 and (hours / 2) % .5 == 0:
-                print('{} is divisible by 2 and 3'.format(hours))
+                meetingPattern = np.random.choice(meetingPatterns)
+                if len(meetingPattern) == 3:
+                    hours = hours / 3
+                else:
+                    hours = hours / 2
+            elif (hours / 3) % .5 == 0:
+                meetingPattern = meetingPatterns[0]
+                hours = hours / 3
+            else:
+                meetingPattern = meetingPatterns[1]
+                hours = hours / 2
         else:
-            print('{} is not divisible'.format(hours))
-            # Assign normal one day/week
-            # meetingPattern =
-        return [room, hours, meetingPattern]
-
-    def evalSubjectsTaken(self):
-        pass
+            meetingPattern = [np.random.randint(0, 6)]
+        hours = hours / .5
+        startingTimeslot = False
+        while not startingTimeslot:
+            candidate = np.random.randint(0, self.settings['ending_time'] - self.settings['starting_time'] + 1)
+            if (candidate + hours) < self.settings['ending_time'] - self.settings['starting_time']:
+                startingTimeslot = candidate
+        return [meetingPattern, startingTimeslot, int(hours)]
 
     def run(self):
         self.initialization()
-        raise SystemExit
+        # raise SystemExit
 
-
-class ScheduleChromosome:
-    def __init__(self, rooms):
-        self.fitness = 0
-        self.mutationRate = 0
-        self.data = {}
-        for key in rooms.keys():
-            roomSchedule = list(
-                map(lambda day: list(map(lambda timeslot: 0 if timeslot == 'Available' else False, day)),
-                    rooms[key][2]))
-            self.data[key] = roomSchedule
-        self.operatingHours = len(list(self.data.values())[0])
-
-    def placeSubject(self, room, timeslotSize, days, startingSlot, subjectData):
-        if not self.timeslotAvailable(room, timeslotSize, days, startingSlot):
-            return False
-        for timeslot in range(startingSlot, startingSlot + timeslotSize):
-            timeslotData = self.data[room][timeslot]
-            if isinstance(days, list):
-                for day in days:
-                    timeslotData[day] = subjectData
-            else:
-                timeslotData[days] = subjectData
-
-    def timeslotAvailable(self, room, timeslotSize, days, startingSlot):
-        for timeslot in range(startingSlot, startingSlot + timeslotSize):
-            timeslotData = self.data[room][timeslot]
-            if isinstance(days, list):
-                for day in days:
-                    if timeslotData[day] != 0 or timeslotData[day] is False: return False
-            else:
-                if timeslotData[days] != 0 or timeslotData[days] is False: return False
-        return True
-
-    def mapSubjectSlots(self):
-        pass
-
-    def getData(self):
-        return self.data
 
 class Chromosome:
     fitness = 0
@@ -138,7 +141,6 @@ class Chromosome:
         self.rawData = data
         self.settings = Settings.getSettings()
         self.buildChromosome()
-        print(self.insertSchedule([2, [2], 4, 1, [3], 0, 2]))
 
     def buildChromosome(self):
         rawData = self.rawData
@@ -158,7 +160,7 @@ class Chromosome:
         for room in rooms:
             roomTimetable = []
             for timeslotRow in rooms[room][2]:
-                 roomTimetable.append([None if day == 'Available' else False for day in timeslotRow])
+                roomTimetable.append([None if day == 'Available' else False for day in timeslotRow])
             self.data['rooms'][room] = roomTimetable
 
     # [roomId, [sectionId], subjectId, instructorID, [day/s], startingTS, length(, sharingId)]
@@ -166,10 +168,8 @@ class Chromosome:
         isValid = self.validateSchedule(schedule)
         if isValid is not True:
             return isValid
-        # Insert into section, sharings, instructor, room
         data = self.data
         subjectDetails = [schedule[0], schedule[3], schedule[4], schedule[5], schedule[6]]
-        print(subjectDetails)
         if len(schedule) > 7:
             data['sharings'][schedule[-1]] = subjectDetails
         for section in schedule[1]:

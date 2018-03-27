@@ -2,9 +2,10 @@
   "starting_time": 12,
   "ending_time": 35,
   "max_instructor_session": 3,
-  "minimum_population": 100,
+  "minimum_population": 1,
   "maximum_population": 100,
   "maximum_generations": 1000,
+  "generation_tolerance": 1500,
   "lunchbreak": true,
   "force_meeting_patterns": true,
   "low_power_mode": false
