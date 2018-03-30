@@ -35,11 +35,3 @@ def load():
         cursor.executescript(';'.join(['DROP TABLE IF EXISTS {}'.format(table[0]) for table in tables]))
         cursor.executescript(file.read())
         conn.close()
-
-# con = sqlite3.connect('../sqlite.db')
-# with open('../dump.sql', 'w') as f:
-#     for line in con.iterdump():
-#         f.write('%s\n' % line)
-#
-# sql = f.read() # watch out for built-in `str`
-# cur.executescript(sql)
