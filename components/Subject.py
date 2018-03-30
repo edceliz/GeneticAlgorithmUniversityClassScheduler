@@ -4,6 +4,7 @@ from components import Timetable
 from components import Database as db
 import json
 
+
 class Subject:
     def __init__(self, id):
         self.id = id
@@ -74,7 +75,9 @@ class Subject:
             return False
         if not self.parent.lineEditCode.text():
             return False
-        if not self.parent.lineEditHours.text() or float(self.parent.lineEditHours.text()) < 0 or float(self.parent.lineEditHours.text()) > 12 or not (float(self.parent.lineEditHours.text()) / .5).is_integer():
+        if not self.parent.lineEditHours.text() or float(self.parent.lineEditHours.text()) < 0 or float(
+                self.parent.lineEditHours.text()) > 12 or not (
+                float(self.parent.lineEditHours.text()) / .5).is_integer():
             return False
         instructors = []
         for row in range(0, self.model.rowCount()):
@@ -92,15 +95,27 @@ class Subject:
             type = 'lab'
         else:
             type = 'any'
+        data = [name, hours, code, description, json.dumps(instructors), divisible, type, self.id]
+        if not self.id:
+            data.pop()
+        self.insertSubject(data)
+        self.dialog.close()
+
+    @staticmethod
+    def insertSubject(data):
         conn = db.getConnection()
         cursor = conn.cursor()
-        if self.id:
-            cursor.execute('UPDATE subjects SET name = ?, hours = ?, code = ?, description = ?, instructors = ?, divisible = ?, type = ? WHERE id = ?',  [name, hours, code, description, json.dumps(instructors), divisible, type, self.id])
+        if len(data) > 7:
+            cursor.execute(
+                'UPDATE subjects SET name = ?, hours = ?, code = ?, description = ?, instructors = ?, divisible = ?, type = ? WHERE id = ?',
+                data)
         else:
-            cursor.execute('INSERT INTO subjects (name, hours, code, description, instructors, divisible, type) VALUES (?, ?, ?, ?, ?, ?, ?)', [name, hours, code, description, json.dumps(instructors), divisible, type])
+            cursor.execute(
+                'INSERT INTO subjects (name, hours, code, description, instructors, divisible, type) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                data)
         conn.commit()
         conn.close()
-        self.dialog.close()
+
 
 class Tree:
     def __init__(self, tree):
@@ -129,9 +144,11 @@ class Tree:
             name.setEditable(False)
             type = QtGui.QStandardItem(entry[3].upper())
             type.setEditable(False)
-            instructorID = list(set(map(lambda id: int(id), json.loads(entry[4]))).intersection(set(instructorList.keys())))
+            instructorID = list(
+                set(map(lambda id: int(id), json.loads(entry[4]))).intersection(set(instructorList.keys())))
             if len(instructorID) > 3:
-                instructorText = ', '.join(list(map(lambda id: instructorList[id], instructorID[0:3]))) + ' and ' + str(len(instructorID) - 3) + ' more'
+                instructorText = ', '.join(list(map(lambda id: instructorList[id], instructorID[0:3]))) + ' and ' + str(
+                    len(instructorID) - 3) + ' more'
             elif len(instructorID) > 0:
                 instructorText = ', '.join(list(map(lambda id: instructorList[id], instructorID)))
             else:
@@ -143,9 +160,9 @@ class Tree:
             self.model.appendRow([id, code, name, type, instructors, edit])
             frameEdit = QtWidgets.QFrame()
             btnEdit = QtWidgets.QPushButton('Edit', frameEdit)
-            btnEdit.clicked.connect(lambda state, id = entry[0]: self.edit(id))
+            btnEdit.clicked.connect(lambda state, id=entry[0]: self.edit(id))
             btnDelete = QtWidgets.QPushButton('Delete', frameEdit)
-            btnDelete.clicked.connect(lambda state, id = entry[0]: self.delete(id))
+            btnDelete.clicked.connect(lambda state, id=entry[0]: self.delete(id))
             frameLayout = QtWidgets.QHBoxLayout(frameEdit)
             frameLayout.setContentsMargins(0, 0, 0, 0)
             frameLayout.addWidget(btnEdit)

@@ -4,6 +4,7 @@ from components import Timetable
 from components import Database as db
 import json
 
+
 class Instructor:
     def __init__(self, id):
         self.id = id
@@ -42,16 +43,23 @@ class Instructor:
                 return False
         except:
             return False
-        # Update or insertion of values
+        data = [name, hours, json.dumps(self.table.getData()), self.id]
+        if not self.id:
+            data.pop()
+        self.insertInstructor(data)
+        self.dialog.close()
+
+    @staticmethod
+    def insertInstructor(data):
         conn = db.getConnection()
         cursor = conn.cursor()
-        if self.id:
-            cursor.execute('UPDATE instructors SET name = ?, hours = ?, schedule = ? WHERE id = ?', [name, hours, json.dumps(self.table.getData()), self.id])
+        if len(data) > 3:
+            cursor.execute('UPDATE instructors SET name = ?, hours = ?, schedule = ? WHERE id = ?', data)
         else:
-            cursor.execute('INSERT INTO instructors (name, hours, schedule) VALUES (?, ?, ?)', [name, hours, json.dumps(self.table.getData())])
+            cursor.execute('INSERT INTO instructors (name, hours, schedule) VALUES (?, ?, ?)', data)
         conn.commit()
         conn.close()
-        self.dialog.close()
+        return True
 
 class Tree:
     def __init__(self, tree):
@@ -104,9 +112,9 @@ class Tree:
             # Create a widget group for edit and delete buttons
             frameEdit = QtWidgets.QFrame()
             btnEdit = QtWidgets.QPushButton('Edit', frameEdit)
-            btnEdit.clicked.connect(lambda state, id = instr[0]: self.edit(id))
+            btnEdit.clicked.connect(lambda state, id=instr[0]: self.edit(id))
             btnDelete = QtWidgets.QPushButton('Delete', frameEdit)
-            btnDelete.clicked.connect(lambda state, id = instr[0]: self.delete(id))
+            btnDelete.clicked.connect(lambda state, id=instr[0]: self.delete(id))
             frameLayout = QtWidgets.QHBoxLayout(frameEdit)
             frameLayout.setContentsMargins(0, 0, 0, 0)
             frameLayout.addWidget(btnEdit)

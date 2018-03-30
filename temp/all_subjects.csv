@@ -1,4 +1,4 @@
-code,description,type,hours,splittable
+code,title,type,hours,splittable
 ENGL101,Communication Skills 1,lec,3,1
 MATH101,College Algebra,lec,3,1
 MATH110,College Trigonometry,lec,3,1

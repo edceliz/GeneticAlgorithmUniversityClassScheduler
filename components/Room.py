@@ -40,15 +40,22 @@ class Room:
             return False
         name = self.parent.lineEditName.text()
         type = 'lec' if self.parent.radioLec.isChecked() else 'lab'
+        data = [name, json.dumps(self.table.getData()), type, self.id]
+        if not self.id:
+            data.pop()
+        self.insertRoom(data)
+        self.dialog.close()
+
+    @staticmethod
+    def insertRoom(data):
         conn = db.getConnection()
         cursor = conn.cursor()
-        if self.id:
-            cursor.execute('UPDATE rooms SET name = ?, schedule = ?, type = ? WHERE id = ?', [name, json.dumps(self.table.getData()), type, self.id])
+        if len(data) > 3:
+            cursor.execute('UPDATE rooms SET name = ?, schedule = ?, type = ? WHERE id = ?', data)
         else:
-            cursor.execute('INSERT INTO rooms (name, schedule, type) VALUES (?, ?, ?)', [name, json.dumps(self.table.getData()), type])
+            cursor.execute('INSERT INTO rooms (name, schedule, type) VALUES (?, ?, ?)', data)
         conn.commit()
         conn.close()
-        self.dialog.close()
 
 class Tree:
     def __init__(self, tree):

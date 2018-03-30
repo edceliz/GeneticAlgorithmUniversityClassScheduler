@@ -58,3 +58,10 @@ class TimetableModel(TableModel.TableModel):
         elif role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         return self.data[index.row()][index.column()]
+
+def generateRawTable():
+    settings = Settings.getSettings()
+    data = []
+    for i in range(settings['ending_time'] + 1 - settings['starting_time']):
+        data.append(['Available', 'Available', 'Available', 'Available', 'Available', 'Available'])
+    return data
