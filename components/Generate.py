@@ -52,7 +52,7 @@ class Generate:
         composer = composer.getScenarioData()
         self.data.update(composer)
         self.geneticAlgorithm = GeneticAlgorithm.GeneticAlgorithm(self.data)
-        # self.geneticAlgorithm.start()
+        self.geneticAlgorithm.start()
 
     def updateResource(self, resource):
         self.tick += 1

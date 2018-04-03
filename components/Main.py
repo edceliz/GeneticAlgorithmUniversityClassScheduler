@@ -34,6 +34,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.btnSubjImport.clicked.connect(self.importSubjects)
         self.actionSave_As.triggered.connect(self.saveAs)
         self.actionOpen.triggered.connect(self.load)
+        self.btnScenGenerate.click()
 
     # Initialize trees and tables
     def drawTrees(self):
