@@ -19,6 +19,13 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
+        <widget class="QLabel" name="lblStatus">
+         <property name="text">
+          <string>Status:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QLabel" name="lblCPU">
@@ -46,27 +53,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="lblCurrentGen">
-           <property name="text">
-            <string>Current Generation:</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
           <widget class="QLabel" name="lblFit">
            <property name="text">
             <string>Average Fitness</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="lblCurrentFit">
-           <property name="text">
-            <string>Current Fitness:</string>
            </property>
           </widget>
          </item>

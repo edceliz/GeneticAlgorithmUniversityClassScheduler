@@ -6,7 +6,11 @@ import numpy as np
 
 
 class GeneticAlgorithm(QtCore.QThread):
-    signal = QtCore.pyqtSignal(object)
+    messageSignal = QtCore.pyqtSignal(object)
+    metaSignal = QtCore.pyqtSignal(object)
+    statusSignal = QtCore.pyqtSignal(object)
+
+    averageFitness = 0
     running = True
     chromosomes = []
     data = {
@@ -27,12 +31,15 @@ class GeneticAlgorithm(QtCore.QThread):
     def __del__(self):
         self.wait()
 
+    # INITIALIZATION BLOCK
+    #
     def initialization(self):
         # Generate population based on minimum population
         self.generateChromosome(self.settings['minimum_population'])
 
     def generateChromosome(self, quantity):
         for i in range(quantity):
+            self.messageSignal.emit('Creating #{}/{} Chromosome'.format(i, quantity))
             self.tempChromosome = Chromosome(self.data)
             # {id: [[subjectIds](, stay|roomId = False)]}
             self.tempSections = sections = {key: [value[2], value[3]] for (key, value) in
@@ -57,7 +64,6 @@ class GeneticAlgorithm(QtCore.QThread):
             self.generateSubjectPlacementsForSharings(sharings)
             self.generateSubjectPlacementsForSections(sections)
             self.chromosomes.append(self.tempChromosome)
-            # self.chromosomes = self.chromosomes + (self.tempChromosome,)
 
     def generateSubjectPlacementsForSharings(self, sharings):
         sharingOrder = list(sharings.keys())
@@ -165,7 +171,7 @@ class GeneticAlgorithm(QtCore.QThread):
         np.random.shuffle(days)
         hours = self.data['subjects'][subject][1]
         # Check if hours can be splitted with minimum session of 1 hour or 2 timeslot
-        if hours > 1.5 and ((hours / 3) % .5 == 0 or (hours / 2) % .5 == 0):
+        if hours > 1.5 and ((hours / 3) % .5 == 0 or (hours / 2) % .5 == 0) and self.data['subjects'][subject][5]:
             # If hours is divisible by two and three
             if (hours / 3) % .5 == 0 and (hours / 2) % .5 == 0:
                 meetingPattern = np.random.choice(meetingPatterns)
@@ -196,11 +202,133 @@ class GeneticAlgorithm(QtCore.QThread):
             if (candidate + hours) < endingTime - startingTime:
                 startingTimeslot = candidate
         return [meetingPattern, startingTimeslot, int(hours)]
+    #
+    # INITIALIZATION BLOCK
+
+    # EVALUATION BLOCK
+    #
+    def evaluate(self):
+        totalChromosomeFitness = 0
+        for chromosome in self.chromosomes:
+            chromosome.fitness = self.evaluateAll(chromosome)
+            totalChromosomeFitness += chromosome.fitness
+        averageFitness = totalChromosomeFitness / len(self.chromosomes)
+        print('Average Fitness: {}%'.format(averageFitness))
+
+    # Evaluation weight depends on settings
+    def evaluateAll(self, chromosome):
+        total = 0
+        subjectPlacement = self.evaluateSubjectPlacements(chromosome)
+        lunchBreak = self.evaluateLunchBreak(chromosome) if self.settings['lunchbreak'] else 100
+        # exit(618)
+        return total
+
+    # = ((subjects - unplacedSubjects) / subjects) * 100
+    def evaluateSubjectPlacements(self, chromosome):
+        sections = copy.deepcopy({key: value[2] for key, value in self.data['sections'].items()})
+        sharings = self.data['sharings']
+        chromosomeUnplacedData = chromosome.data['unplaced']
+        # Number of subjects that are in sharing
+        sharingSubjects = 0
+        # Remove section subjects that are shared
+        for sharing in sharings.values():
+            # Sharing subjects is increased based on number of sections sharing the subject
+            sharingSubjects += len(sharing[1])
+            for section in sharing[1]:
+                sections[section].remove(sharing[0])
+        # Combined list of section subjects
+        sectionSubjects = len(list(itertools.chain.from_iterable(sections.values())))
+        # Combined list of subjects
+        totalSubjects = sectionSubjects + sharingSubjects
+        # Number of shared subjects that are not placed
+        unplacedSharingSubjects = 0
+        for sharing in chromosomeUnplacedData['sharings']:
+            # Sharing subjects is increased based on number of sections sharing the subject
+            unplacedSharingSubjects += len(sharings[sharing][1])
+        # Length of unplaced section subjects
+        unplacedSectionSubjects = len(list(itertools.chain.from_iterable(chromosomeUnplacedData['sections'].values())))
+        totalUnplacedSubjects = unplacedSharingSubjects + unplacedSectionSubjects
+        return round(((totalSubjects - totalUnplacedSubjects) / totalSubjects) * 100, 2)
+
+    # = qwe
+    def evaluateLunchBreak(self, chromosome):
+        # TS 22-25 : 11 AM - 1 PM
+        sectionDays = 0
+        noLunchDays = 0
+        for section in chromosome.data['sections'].values():
+            # [roomId, instructorId, [day / s], startingTS, length]
+            details = section['details']
+            # Create temporary schedule map for section subjects
+            tempScheduleMap = {key: [22, 23, 24, 25] for key in range(6)}
+            tempSectionDays = []
+            for subject in details.values():
+                if not len(subject):
+                    continue
+                for day in subject[2]:
+                    if day not in tempSectionDays:
+                        tempSectionDays.append(day)
+                    for timeslot in range(subject[3], subject[3] + subject[4]):
+                        if timeslot in tempScheduleMap[day]:
+                            tempScheduleMap[day].remove(timeslot)
+            for day in tempScheduleMap.values():
+                if not len(day):
+                    noLunchDays += 1
+            sectionDays += len(tempSectionDays)
+        return round(((sectionDays - noLunchDays) / sectionDays) * 100, 2)
+
+    def evaluateStudentRest(self):
+        return 1
+
+    def evaluateInstructorRest(self):
+        return 1
+
+    def evaluateStudentIdleTime(self):
+        return 1
+
+    def evaluateMeetingPattern(self):
+        return 1
+
+    def evaluateInstructorLoad(self):
+        return 1
+    #
+    # EVALUATION BLOCK
+
+    def selection(self):
+        pass
+
+    def crossover(self):
+        pass
+
+    def mutation(self):
+        pass
+
+    def adapting(self):
+        pass
 
     def run(self):
+        self.messageSignal.emit('Started Initialization')
         self.initialization()
-        print('Initialization complete!')
-        raise SystemExit
+        self.messageSignal.emit('Initialization Complete')
+        generation = 1
+        while self.running:
+            generation += 1
+            if self.settings['maximum_generations'] < generation:
+                self.messageSignal.emit('Hit the maximum generation!')
+                self.statusSignal.emit(1)
+                self.running = False
+                continue
+            self.messageSignal.emit('Started Evaluation')
+            self.evaluate()
+            self.metaSignal.emit([self.averageFitness, generation])
+            # exit(619)
+            self.messageSignal.emit('Started Selection')
+            self.selection()
+            self.messageSignal.emit('Started Crossover')
+            self.crossover()
+            self.messageSignal.emit('Started Mutation')
+            self.mutation()
+            self.messageSignal.emit('Started Adaptation')
+            self.adapting()
 
 
 class Chromosome:

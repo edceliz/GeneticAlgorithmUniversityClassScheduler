@@ -52,7 +52,21 @@ class Generate:
         composer = composer.getScenarioData()
         self.data.update(composer)
         self.geneticAlgorithm = GeneticAlgorithm.GeneticAlgorithm(self.data)
+        self.geneticAlgorithm.messageSignal.connect(lambda status: self.updateStatus(status))
+        self.geneticAlgorithm.metaSignal.connect(lambda meta: self.updateMeta(meta))
+        self.geneticAlgorithm.statusSignal.connect(lambda status: self.updateBoard(status))
         self.geneticAlgorithm.start()
+
+    def updateStatus(self, status):
+        self.parent.lblStatus.setText('Status: {}'.format(status))
+
+    def updateMeta(self, meta):
+        self.parent.lblFit.setText('Average Fitness: {}%'.format(meta[0]))
+        self.parent.lblGen.setText('Current Generation: {}'.format(meta[1]))
+
+    def updateBoard(self, status):
+        if status == 1:
+            self.toggleState()
 
     def updateResource(self, resource):
         self.tick += 1
@@ -64,15 +78,6 @@ class Generate:
         self.parent.lblCPU.setText('CPU Usage: {}%'.format(resource[0]))
         self.parent.lblMemory.setText('Memory Usage: {}% - {} MB'.format(resource[1][0], resource[1][1]))
 
-    def cleanDatabase(self):
-        conn = db.getConnection()
-        cursor = conn.cursor()
-        # PENDING WORK
-        conn.commit()
-        conn.close()
-
-    def setupRooms(self):
-        pass
 
 class ResourceTrackerWorker(QtCore.QThread):
     signal = QtCore.pyqtSignal(object)
