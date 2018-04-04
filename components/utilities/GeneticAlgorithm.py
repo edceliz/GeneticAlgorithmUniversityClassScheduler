@@ -218,9 +218,10 @@ class GeneticAlgorithm(QtCore.QThread):
     # Evaluation weight depends on settings
     def evaluateAll(self, chromosome):
         total = 0
-        subjectPlacement = self.evaluateSubjectPlacements(chromosome)
-        lunchBreak = self.evaluateLunchBreak(chromosome) if self.settings['lunchbreak'] else 100
-        # exit(618)
+        # subjectPlacement = self.evaluateSubjectPlacements(chromosome)
+        # lunchBreak = self.evaluateLunchBreak(chromosome) if self.settings['lunchbreak'] else 100
+        # studentRest = self.evaluateStudentRest(chromosome)
+        # instructorRest = self.evaluateInstructorRest(chromosome)
         return total
 
     # = ((subjects - unplacedSubjects) / subjects) * 100
@@ -281,19 +282,75 @@ class GeneticAlgorithm(QtCore.QThread):
             sectionDays += len(tempSectionDays)
         return round(((sectionDays - noLunchDays) / sectionDays) * 100, 2)
 
-    def evaluateStudentRest(self):
+    # = ((sectionDays - noRestDays) / sectionDays) * 100
+    def evaluateStudentRest(self, chromosome):
+        sectionDays = 0
+        noRestDays = 0
+        for section in chromosome.data['sections'].values():
+            # Sections week
+            week = {day: [] for day in range(6)}
+            for subject in section['details'].values():
+                if not len(subject):
+                    continue
+                # Add section subject timeslots to sections week
+                for day in subject[2]:
+                    for timeslot in range(subject[3], subject[3] + subject[4]):
+                        week[day].append(timeslot)
+                        week[day].sort()
+            for day in week.values():
+                if not len(day):
+                    continue
+                sectionDays += 1
+                if len(day) < 6:
+                    continue
+                hasViolated = False
+                # Steps of how many three hours per day a section has (Increments of 30 minutes)
+                for threeHours in range(6, len(day) + 1):
+                    if hasViolated:
+                        continue
+                    # Compare consecutive timeslot to section's day timeslot
+                    if [timeslot for timeslot in range(day[threeHours - 6], day[threeHours - 6] + 6)] == day[threeHours - 6: threeHours]:
+                        hasViolated = True
+                        noRestDays += 1
+        return round(((sectionDays - noRestDays) / sectionDays) * 100, 2)
+
+    # = ((instructorTeachingDays - noRestDays) / instructorTeachingDays) * 100
+    def evaluateInstructorRest(self, chromosome):
+        instructorTeachingDays = 0
+        noRestDays = 0
+        for instructor in chromosome.data['instructors'].values():
+            # Instructor week
+            week = {day: [] for day in range(6)}
+            for timeslot, timeslotRow in enumerate(instructor):
+                for day, value in enumerate(timeslotRow):
+                    # Add timeslot to instructor week if teaching
+                    if value:
+                        week[day].append(timeslot)
+            for day in week.values():
+                if not len(day):
+                    continue
+                print(day)
+                instructorTeachingDays += 1
+                if len(day) < 6:
+                    continue
+                hasViolated = False
+                # Steps of how many three hours per day a section has (Increments of 30 minutes)
+                for threeHours in range(6, len(day) + 1):
+                    if hasViolated:
+                        continue
+                    # Compare consecutive timeslot to section's day timeslot
+                    if [timeslot for timeslot in range(day[threeHours - 6], day[threeHours - 6] + 6)] == day[threeHours - 6: threeHours]:
+                        hasViolated = True
+                        noRestDays += 1
+        return round(((instructorTeachingDays - noRestDays) / instructorTeachingDays) * 100, 2)
+
+    def evaluateStudentIdleTime(self, chromosome):
         return 1
 
-    def evaluateInstructorRest(self):
+    def evaluateMeetingPattern(self, chromosome):
         return 1
 
-    def evaluateStudentIdleTime(self):
-        return 1
-
-    def evaluateMeetingPattern(self):
-        return 1
-
-    def evaluateInstructorLoad(self):
+    def evaluateInstructorLoad(self, chromosome):
         return 1
     #
     # EVALUATION BLOCK
@@ -325,7 +382,7 @@ class GeneticAlgorithm(QtCore.QThread):
             self.messageSignal.emit('Started Evaluation')
             self.evaluate()
             self.metaSignal.emit([self.averageFitness, generation])
-            # exit(619)
+            exit(619)
             self.messageSignal.emit('Started Selection')
             self.selection()
             self.messageSignal.emit('Started Crossover')
