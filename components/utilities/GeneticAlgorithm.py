@@ -250,26 +250,31 @@ class GeneticAlgorithm(QtCore.QThread):
         totalUnplacedSubjects = unplacedSharingSubjects + unplacedSectionSubjects
         return round(((totalSubjects - totalUnplacedSubjects) / totalSubjects) * 100, 2)
 
-    # = qwe
+    # = ((sectionDays - noLunchDays) / sectionDays) * 100
     def evaluateLunchBreak(self, chromosome):
-        # TS 22-25 : 11 AM - 1 PM
         sectionDays = 0
         noLunchDays = 0
         for section in chromosome.data['sections'].values():
             # [roomId, instructorId, [day / s], startingTS, length]
             details = section['details']
-            # Create temporary schedule map for section subjects
+            # A temporary map for days and lunch period
+            # {day: [22, 23, 24, 25]}
+            # TS 22-25 : 11 AM - 1 PM
             tempScheduleMap = {key: [22, 23, 24, 25] for key in range(6)}
+            # Days that the section used
             tempSectionDays = []
+            # Loop through each subject and remove lunch period timeslots that are occupied.
             for subject in details.values():
                 if not len(subject):
                     continue
                 for day in subject[2]:
                     if day not in tempSectionDays:
                         tempSectionDays.append(day)
+                    # Check if subject is in lunch period
                     for timeslot in range(subject[3], subject[3] + subject[4]):
                         if timeslot in tempScheduleMap[day]:
                             tempScheduleMap[day].remove(timeslot)
+            # If whole day's lunch period is taken, count it as no lunch break
             for day in tempScheduleMap.values():
                 if not len(day):
                     noLunchDays += 1
