@@ -61,8 +61,11 @@ class Generate:
         self.parent.lblStatus.setText('Status: {}'.format(status))
 
     def updateMeta(self, meta):
-        self.parent.lblFit.setText('Average Fitness: {}%'.format(meta[0]))
-        self.parent.lblGen.setText('Current Generation: {}'.format(meta[1]))
+        if len(meta) == 1:
+            self.parent.lblFit.setText('Average Fitness: {}%'.format(meta[0]))
+        else:
+            self.parent.lblFit.setText('Average Fitness: {}%'.format(meta[0]))
+            self.parent.lblGen.setText('Current Generation: {}'.format(meta[1]))
 
     def updateBoard(self, status):
         if status == 1:
