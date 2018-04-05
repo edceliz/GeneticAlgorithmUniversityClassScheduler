@@ -494,7 +494,57 @@ class GeneticAlgorithm(QtCore.QThread):
         return winner
 
     def crossover(self):
-        pass
+        for couple in self.matingPool:
+            self.offsprings.append(self.createOffspring(couple))
+            couple.reverse()
+            self.offsprings.append(self.createOffspring(couple))
+        print(self.offsprings)
+        exit(618)
+
+    def createOffspring(self, parent):
+        offspring = Chromosome(self.data)
+        parentA = self.chromosomes[parent[0]]
+        parentB = self.chromosomes[parent[1]]
+        parentAShareables = {
+            'sharings': {},
+            'sections': {}
+        }
+        # Parent A shall provide half of its genes
+        parentASharings = parentA.data['sharings']
+        if len(parentASharings) > 1:
+            # Amount of sharings to get
+            sharingCarve = round(len(parentASharings) / 3)
+            # Middlemost element with bias to left
+            startingPoint = int(len(parentASharings) / 2) - (sharingCarve - 1)
+            for index in range(startingPoint, startingPoint + sharingCarve):
+                # Take note that index does not mean it is the key of the sharings
+                # [{sharingId: details}]
+                sharings = [id for id in parentASharings.keys()]
+                for sharing in sharings[startingPoint:startingPoint + sharingCarve]:
+                    parentAShareables['sharings'][sharing] = parentASharings[sharing]
+        # Raw list of parent A sections with reduced subjects from sharings
+        parentASections = {}
+        for section, value in parentA.data['sections'].items():
+            parentASections[section] = value['details']
+        for sharing in self.data['sharings'].values():
+            for section in sharing[1]:
+                parentASections[section].pop(sharing[0])
+        parentASections = {key: value for key, value in filter(lambda item: len(item[1]) > 1, parentASections.items())}
+        # Calculate the shareables of each section
+        for section, values in parentASections.items():
+            # Amount of section subjects to share
+            sectionCarve = round(len(values) / 3)
+            # Middlemost element with bias to left
+            startingPoint = int(len(values) / 2) - (sectionCarve - 1)
+            subjects = [id for id in values.keys()]
+            for index in range(startingPoint, startingPoint + sectionCarve):
+                if section not in parentAShareables['sections']:
+                    parentAShareables['sections'][section] = {}
+                parentAShareables['sections'][section][subjects[index]] = values[subjects[index]]
+
+        # REMEMBER UNPLACED VARIABLES
+        return offspring
+
 
     def mutation(self):
         pass
@@ -519,9 +569,9 @@ class GeneticAlgorithm(QtCore.QThread):
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
             self.messageSignal.emit('Started Selection')
             self.selection()
-            exit(619)
             self.messageSignal.emit('Started Crossover')
             self.crossover()
+            exit(619)
             self.messageSignal.emit('Started Mutation')
             self.mutation()
             self.messageSignal.emit('Started Adaptation')
