@@ -20,6 +20,11 @@ class GeneticAlgorithm(QtCore.QThread):
         'sharings': [],
         'subjects': []
     }
+    # This is in percent (.0-1)
+    tournamentSize = .10
+    elites = []
+    matingPool = []
+    offsprings = []
     tempChromosome = None
     tempSections = None
 
@@ -31,8 +36,6 @@ class GeneticAlgorithm(QtCore.QThread):
     def __del__(self):
         self.wait()
 
-    # INITIALIZATION BLOCK
-    #
     def initialization(self):
         # Generate population based on minimum population
         self.generateChromosome(self.settings['minimum_population'])
@@ -202,11 +205,7 @@ class GeneticAlgorithm(QtCore.QThread):
             if (candidate + hours) < endingTime - startingTime:
                 startingTimeslot = candidate
         return [meetingPattern, startingTimeslot, int(hours)]
-    #
-    # INITIALIZATION BLOCK
 
-    # EVALUATION BLOCK
-    #
     def evaluate(self):
         totalChromosomeFitness = 0
         for index, chromosome in enumerate(self.chromosomes):
@@ -442,11 +441,57 @@ class GeneticAlgorithm(QtCore.QThread):
             instructorLoadAverage += (instructor[1] / instructor[0]) * 100
         instructorLoadAverage = round(((instructorLoadAverage / len(activeInstructors)) / 50) * 100, 2)
         return instructorLoadAverage
-    #
-    # EVALUATION BLOCK
 
+    # Selects top 5% of population and performs tournament to generate remaining candidates
     def selection(self):
-        pass
+        population = len(self.chromosomes)
+        chromosomeFitness = [self.chromosomes[chromosome].fitness for chromosome in range(len(self.chromosomes))]
+        # Select number of elites that will ensure there will be even offspring to be generated
+        eliteCount = round(population * .05)
+        if population % 2 == 0:
+            eliteCount = eliteCount if eliteCount % 2 == 0 else eliteCount + 1
+        else:
+            eliteCount = eliteCount if eliteCount % 2 != 0 else eliteCount + 1
+        self.messageSignal.emit('Selecting {} Elites'.format(eliteCount))
+        elites = [0 for i in range(eliteCount)]
+        # Elite selection [[id: fitness]]
+        for chromosome, fitness in enumerate(chromosomeFitness):
+            for index, elite in enumerate(elites):
+                if fitness > chromosomeFitness[elite]:
+                    elites[index] = chromosome
+                    break
+        matingPool = []
+        matingPoolSize = int((population - eliteCount) / 2)
+        tournamentSize = int(self.tournamentSize * population)
+        # Fill mating pool with couples selected by multiple tournaments
+        for i in range(matingPoolSize):
+            self.messageSignal.emit('Creating Couple #{}/{}'.format(i + 1, matingPoolSize))
+            couple = []
+            while len(couple) != 2:
+                winner = self.createTournament(tournamentSize, chromosomeFitness)
+                if winner not in couple:
+                    couple.append(winner)
+            matingPool.append(couple)
+        self.elites = elite
+        self.matingPool = matingPool
+
+    # size = int, population = [fitness]
+    def createTournament(self, size, population):
+        participants = []
+        # Select participants
+        for i in range(size):
+            candidate = False
+            while candidate is False:
+                candidate = np.random.randint(0, len(population))
+                if candidate in participants:
+                    candidate = False
+                    continue
+            participants.append(candidate)
+        winner = participants[0]
+        for participant in participants:
+            if population[participant] > population[winner]:
+                winner = participant
+        return winner
 
     def crossover(self):
         pass
@@ -454,7 +499,7 @@ class GeneticAlgorithm(QtCore.QThread):
     def mutation(self):
         pass
 
-    def adapting(self):
+    def adapt(self):
         pass
 
     def run(self):
@@ -474,12 +519,13 @@ class GeneticAlgorithm(QtCore.QThread):
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
             self.messageSignal.emit('Started Selection')
             self.selection()
+            exit(619)
             self.messageSignal.emit('Started Crossover')
             self.crossover()
             self.messageSignal.emit('Started Mutation')
             self.mutation()
             self.messageSignal.emit('Started Adaptation')
-            self.adapting()
+            self.adapt()
 
 
 class Chromosome:

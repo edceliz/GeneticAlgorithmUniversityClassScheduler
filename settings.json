@@ -2,7 +2,7 @@
   "starting_time": 12,
   "ending_time": 35,
   "max_instructor_session": 3,
-  "minimum_population": 10,
+  "minimum_population": 20,
   "maximum_population": 100,
   "maximum_generations": 50,
   "generation_tolerance": 1500,
