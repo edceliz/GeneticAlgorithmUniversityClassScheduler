@@ -31,6 +31,8 @@ class GeneticAlgorithm(QtCore.QThread):
     def __init__(self, data):
         self.data = data
         self.settings = Settings.getSettings()
+        self.stopWhenAverageFitnessAt = self.settings['max_average_fitness']
+        # Calculate starting tournament size
         super().__init__()
 
     def __del__(self):
@@ -472,7 +474,7 @@ class GeneticAlgorithm(QtCore.QThread):
                 if winner not in couple:
                     couple.append(winner)
             matingPool.append(couple)
-        self.elites = elite
+        self.elites = elites
         self.matingPool = matingPool
 
     # size = int, population = [fitness]
@@ -494,13 +496,20 @@ class GeneticAlgorithm(QtCore.QThread):
         return winner
 
     def crossover(self):
+        offspringCount = 1
+        # self.offsprings = []
         for couple in self.matingPool:
+            self.messageSignal.emit('Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
             self.offsprings.append(self.createOffspring(couple))
+            offspringCount += 1
             couple.reverse()
+            self.messageSignal.emit('Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
             self.offsprings.append(self.createOffspring(couple))
-        print(self.offsprings)
-        exit(618)
+            offspringCount += 1
+        self.elites = list(map(lambda elite: copy.deepcopy(self.chromosomes[elite]), self.elites))
+        self.chromosomes = self.offsprings + self.elites
 
+    # Returns a chromosome containing a mix of parents genes
     def createOffspring(self, parent):
         offspring = Chromosome(self.data)
         parentA = self.chromosomes[parent[0]]
@@ -524,7 +533,7 @@ class GeneticAlgorithm(QtCore.QThread):
                     parentAShareables['sharings'][sharing] = parentASharings[sharing]
         # Raw list of parent A sections with reduced subjects from sharings
         parentASections = {}
-        for section, value in parentA.data['sections'].items():
+        for section, value in copy.deepcopy(parentA.data['sections']).items():
             parentASections[section] = value['details']
         for sharing in self.data['sharings'].values():
             for section in sharing[1]:
@@ -541,9 +550,66 @@ class GeneticAlgorithm(QtCore.QThread):
                 if section not in parentAShareables['sections']:
                     parentAShareables['sections'][section] = {}
                 parentAShareables['sections'][section][subjects[index]] = values[subjects[index]]
+        parentBShareables = {
+            'sharings': {},
+            'sections': {}
+        }
+        # Add remaining sharings from parent B
+        for id, sharing in parentB.data['sharings'].items():
+            if id not in parentAShareables['sharings'].keys():
+                parentBShareables['sharings'][id] = sharing
+        # Create list of parent B sections
+        parentBSections = {}
+        for section, value in copy.deepcopy(parentB.data['sections']).items():
+            parentBSections[section] = value['details']
+        for sharing in self.data['sharings'].values():
+            for section in sharing[1]:
+                parentBSections[section].pop(sharing[0])
+        # Create list of subjects that are not in parent A shareables
+        for section in parentBSections:
+            parentBShareables['sections'][section] = {}
+            for id, subject in parentBSections[section].items():
+                if id not in parentAShareables['sections'][section].keys():
+                    parentBShareables['sections'][section][id] = subject
+        # List of unplaced sharings with or without data
+        unplacedSharings = {}
+        # Insert parent A sharings into chromosome
+        sharings = self.data['sharings']
+        for id, sharing in parentAShareables['sharings'].items():
+            if not len(sharing):
+                unplacedSharings[id] = []
+                continue
+            offspring.insertSchedule([sharing[0], sharings[id][1], sharings[id][0], sharing[1], *sharing[2:5], id])
+        # Add parent B subjects in random manner
+        parentBSharings = list(parentBShareables['sharings'].keys())
+        np.random.shuffle(parentBSharings)
+        for sharing in parentBSharings:
+            parentBSharing = parentBShareables['sharings'][sharing]
+            if not len(parentBSharing):
+                unplacedSharings[sharing] = []
+                continue
+            if offspring.insertSchedule([parentBSharing[0], sharings[sharing][1], sharings[sharing][0], parentBSharing[1], *parentBSharing[2:5], sharing]):
+                unplacedSharings[sharing] = parentBSharing
+        # List of unplaced subjects with or without data
+        unplacedSectionSubjects = {}
+        # Insert parent A section subjects into chromosome
+        for section, subjects in parentAShareables['sections'].items():
+            if section not in unplacedSectionSubjects.keys():
+                unplacedSectionSubjects[section] = {}
+            for subject, details in subjects.items():
+                if not len(details):
+                    unplacedSectionSubjects[section][subject] = []
+                    continue
+                if offspring.insertSchedule([details[0], [section], subject, details[1], *details[2:5]]):
+                    unplacedSectionSubjects[section][subject] = details
+        # print(parentBShareables['sections'])
 
-        # REMEMBER UNPLACED VARIABLES
+        # Parent B section subjects are not yet placed
+        # Attempt to place unplaced subjects and sharings
         return offspring
+
+    # [roomId, [sectionId], subjectId, instructorID, [day / s], startingTS, length(, sharingId)]
+    # [roomId, instructorId, [day / s], startingTS, length]
 
 
     def mutation(self):
@@ -566,16 +632,22 @@ class GeneticAlgorithm(QtCore.QThread):
                 continue
             self.messageSignal.emit('Started Evaluation')
             self.evaluate()
+            # Emit signal for live data preview
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
+            if round(self.averageFitness, 2) >= self.stopWhenAverageFitnessAt:
+                self.messageSignal.emit('Hit the required fitness!')
+                self.statusSignal.emit(1)
+                self.running = False
+                continue
             self.messageSignal.emit('Started Selection')
             self.selection()
             self.messageSignal.emit('Started Crossover')
             self.crossover()
-            exit(619)
+            # exit(619)
             self.messageSignal.emit('Started Mutation')
-            self.mutation()
-            self.messageSignal.emit('Started Adaptation')
-            self.adapt()
+            # self.mutation()
+            self.messageSignal.emit('Started Environment Tweaking')
+            # self.adapt()
 
 
 class Chromosome:
@@ -731,6 +803,3 @@ class Chromosome:
                 if instructor[timeslotRow][day] is not None:
                     return False
         return True
-
-    def getData(self):
-        return self.data

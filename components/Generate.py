@@ -39,10 +39,8 @@ class Generate:
 
     def toggleState(self):
         self.running = not self.running
-        if self.running:
-            self.resourceWorker.running = True
-        else:
-            self.resourceWorker.running = False
+        self.resourceWorker.running = self.running
+        self.geneticAlgorithm.running = self.running
 
     def startWorkers(self):
         self.resourceWorker = ResourceTrackerWorker()

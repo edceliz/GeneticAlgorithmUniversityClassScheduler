@@ -3,7 +3,7 @@
   "ending_time": 35,
   "max_instructor_session": 3,
   "minimum_population": 20,
-  "maximum_population": 100,
+  "maximum_population": 2000,
   "maximum_generations": 50,
   "generation_tolerance": 1500,
   "lunchbreak": true,
@@ -17,5 +17,6 @@
     "idle_time": 10,
     "meeting_pattern": 10,
     "instructor_load": 10
-  }
+  },
+  "max_average_fitness": 100
 }
