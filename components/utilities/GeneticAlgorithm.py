@@ -20,6 +20,7 @@ class GeneticAlgorithm(QtCore.QThread):
         'sharings': [],
         'subjects': []
     }
+    stayInRoomAssignments = {}
     # This is in percent (.0-1)
     tournamentSize = .10
     elites = []
@@ -54,13 +55,19 @@ class GeneticAlgorithm(QtCore.QThread):
             # [roomIds]
             self.rooms = rooms = list(self.data['rooms'].keys())
             # Room selection for staying sections
-            for section in sections:
-                if sections[section][1]:
-                    room = False
-                    while not room:
-                        candidate = np.random.choice(rooms)
-                        if self.data['rooms'][candidate][1] == 'lec':
-                            room = candidate
+            if not len(self.stayInRoomAssignments):
+                # TODO: Distributed room selection
+                for section in sections:
+                    if sections[section][1]:
+                        room = False
+                        while not room:
+                            candidate = np.random.choice(rooms)
+                            if self.data['rooms'][candidate][1] == 'lec':
+                                room = candidate
+                        sections[section][1] = room
+                        self.stayInRoomAssignments[section] = room
+            else:
+                for section, room in self.stayInRoomAssignments.items():
                     sections[section][1] = room
             # Remove subjects from sections that are already in sharing
             for sharing in sharings.values():
@@ -100,7 +107,8 @@ class GeneticAlgorithm(QtCore.QThread):
         generationAttempt = 0
         error = None
 
-        stayInRoom = self.tempSections[section[0]][1]
+        stayInRoom = False if section[0] not in self.stayInRoomAssignments.keys() else self.stayInRoomAssignments[
+            section[0]]
         subjectDetails = self.data['subjects'][subject]
 
         room = stayInRoom if stayInRoom else None
@@ -497,13 +505,15 @@ class GeneticAlgorithm(QtCore.QThread):
 
     def crossover(self):
         offspringCount = 1
-        # self.offsprings = []
+        self.offsprings = []
         for couple in self.matingPool:
-            self.messageSignal.emit('Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
+            self.messageSignal.emit(
+                'Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
             self.offsprings.append(self.createOffspring(couple))
             offspringCount += 1
             couple.reverse()
-            self.messageSignal.emit('Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
+            self.messageSignal.emit(
+                'Creating Offspring #{}/{}'.format(offspringCount, len(self.chromosomes) - len(self.elites)))
             self.offsprings.append(self.createOffspring(couple))
             offspringCount += 1
         self.elites = list(map(lambda elite: copy.deepcopy(self.chromosomes[elite]), self.elites))
@@ -511,7 +521,7 @@ class GeneticAlgorithm(QtCore.QThread):
 
     # Returns a chromosome containing a mix of parents genes
     def createOffspring(self, parent):
-        offspring = Chromosome(self.data)
+        self.tempChromosome = offspring = Chromosome(self.data)
         parentA = self.chromosomes[parent[0]]
         parentB = self.chromosomes[parent[1]]
         parentAShareables = {
@@ -583,13 +593,14 @@ class GeneticAlgorithm(QtCore.QThread):
         # Add parent B subjects in random manner
         parentBSharings = list(parentBShareables['sharings'].keys())
         np.random.shuffle(parentBSharings)
-        for sharing in parentBSharings:
-            parentBSharing = parentBShareables['sharings'][sharing]
-            if not len(parentBSharing):
-                unplacedSharings[sharing] = []
+
+        for id in parentBSharings:
+            sharing = parentBShareables['sharings'][id]
+            if not len(sharing):
+                unplacedSharings[id] = []
                 continue
-            if offspring.insertSchedule([parentBSharing[0], sharings[sharing][1], sharings[sharing][0], parentBSharing[1], *parentBSharing[2:5], sharing]):
-                unplacedSharings[sharing] = parentBSharing
+            if offspring.insertSchedule([sharing[0], sharings[id][1], sharings[id][0], sharing[1], *sharing[2:5], id]):
+                unplacedSharings[id] = sharing
         # List of unplaced subjects with or without data
         unplacedSectionSubjects = {}
         # Insert parent A section subjects into chromosome
@@ -602,15 +613,26 @@ class GeneticAlgorithm(QtCore.QThread):
                     continue
                 if offspring.insertSchedule([details[0], [section], subject, details[1], *details[2:5]]):
                     unplacedSectionSubjects[section][subject] = details
-        # print(parentBShareables['sections'])
-
-        # Parent B section subjects are not yet placed
-        # Attempt to place unplaced subjects and sharings
+        # Insert parent B section subjects into chromosome
+        for section, subjects in parentBShareables['sections'].items():
+            if section not in unplacedSectionSubjects.keys():
+                unplacedSectionSubjects[section] = {}
+            for subject, details in subjects.items():
+                if not len(details):
+                    unplacedSectionSubjects[section][subject] = []
+                    continue
+                if offspring.insertSchedule([details[0], [section], subject, details[1], *details[2:5]]):
+                    unplacedSectionSubjects[section][subject] = details
+        # Attempt to insert unplaced sharings
+        for sharing in copy.deepcopy(unplacedSharings).keys():
+            if self.generateSubjectPlacement(sharings[sharing][1], sharings[sharing][0], sharing):
+                unplacedSharings.pop(sharing)
+        # Attempt to insert unplaced section subjects
+        for section, subjects in copy.deepcopy(unplacedSectionSubjects).items():
+            for subject, detail in subjects.items():
+                if self.generateSubjectPlacement([section], subject):
+                    unplacedSectionSubjects[section].pop(subject)
         return offspring
-
-    # [roomId, [sectionId], subjectId, instructorID, [day / s], startingTS, length(, sharingId)]
-    # [roomId, instructorId, [day / s], startingTS, length]
-
 
     def mutation(self):
         pass
@@ -632,7 +654,7 @@ class GeneticAlgorithm(QtCore.QThread):
                 continue
             self.messageSignal.emit('Started Evaluation')
             self.evaluate()
-            # Emit signal for live data preview
+            # TODO: Emit signal for live data preview
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
             if round(self.averageFitness, 2) >= self.stopWhenAverageFitnessAt:
                 self.messageSignal.emit('Hit the required fitness!')
@@ -732,7 +754,7 @@ class Chromosome:
     # [roomId, [sectionId], subjectId, instructorID, [day/s], startingTS, length(, sharingId)]
     def insertSchedule(self, schedule):
         # Validate schedule details
-        isValid = self.validateSchedule(schedule)
+        isValid = self.validateSchedule(copy.deepcopy(schedule))
         if isValid is not True:
             return isValid
         data = self.data
