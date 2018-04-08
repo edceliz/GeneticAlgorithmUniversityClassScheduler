@@ -53,6 +53,7 @@ class Generate:
         self.geneticAlgorithm.messageSignal.connect(lambda status: self.updateStatus(status))
         self.geneticAlgorithm.metaSignal.connect(lambda meta: self.updateMeta(meta))
         self.geneticAlgorithm.statusSignal.connect(lambda status: self.updateBoard(status))
+        self.geneticAlgorithm.dataSignal.connect(lambda data: self.updateLive(data))
         self.geneticAlgorithm.start()
 
     def updateStatus(self, status):
@@ -68,6 +69,10 @@ class Generate:
     def updateBoard(self, status):
         if status == 1:
             self.toggleState()
+
+    def updateLive(self, data):
+        data.reverse()
+        # TODO: Parse data for viewing
 
     def updateResource(self, resource):
         self.tick += 1

@@ -3,12 +3,14 @@ from components import Settings
 import copy
 import itertools
 import numpy as np
+from operator import itemgetter
 
 
 class GeneticAlgorithm(QtCore.QThread):
     messageSignal = QtCore.pyqtSignal(object)
     metaSignal = QtCore.pyqtSignal(object)
     statusSignal = QtCore.pyqtSignal(object)
+    dataSignal = QtCore.pyqtSignal(object)
 
     averageFitness = 0
     running = True
@@ -23,6 +25,8 @@ class GeneticAlgorithm(QtCore.QThread):
     stayInRoomAssignments = {}
     # This is in percent (.0-1)
     tournamentSize = .10
+    elitePercent = .05
+    mutationRate = .10
     elites = []
     matingPool = []
     offsprings = []
@@ -160,7 +164,6 @@ class GeneticAlgorithm(QtCore.QThread):
                 scheduleToInsert.append(sharing)
             error = self.tempChromosome.insertSchedule(scheduleToInsert)
             if error is False:
-                generating = False
                 return True
 
     def selectRoom(self, subject):
@@ -224,6 +227,10 @@ class GeneticAlgorithm(QtCore.QThread):
             totalChromosomeFitness += chromosome.fitness
             self.averageFitness = totalChromosomeFitness / len(self.chromosomes)
             self.metaSignal.emit([round(self.averageFitness, 2)])
+        chromosomeFitness = sorted(enumerate(map(lambda chromosome: chromosome.fitness, self.chromosomes)), key=itemgetter(1))
+        self.dataSignal.emit(list(map(lambda chromosome: [self.chromosomes[0], chromosome[1]], chromosomeFitness[-5:])))
+        # self.dataSignal.emit(self.chromosomes)
+        # print(self.chromosomes[highest].fitness)
 
     # Evaluation weight depends on settings
     def evaluateAll(self, chromosome):
@@ -457,19 +464,24 @@ class GeneticAlgorithm(QtCore.QThread):
         population = len(self.chromosomes)
         chromosomeFitness = [self.chromosomes[chromosome].fitness for chromosome in range(len(self.chromosomes))]
         # Select number of elites that will ensure there will be even offspring to be generated
-        eliteCount = round(population * .05)
+        eliteCount = round(population * self.elitePercent)
         if population % 2 == 0:
             eliteCount = eliteCount if eliteCount % 2 == 0 else eliteCount + 1
         else:
             eliteCount = eliteCount if eliteCount % 2 != 0 else eliteCount + 1
         self.messageSignal.emit('Selecting {} Elites'.format(eliteCount))
-        elites = [0 for i in range(eliteCount)]
-        # Elite selection [[id: fitness]]
-        for chromosome, fitness in enumerate(chromosomeFitness):
-            for index, elite in enumerate(elites):
-                if fitness > chromosomeFitness[elite]:
-                    elites[index] = chromosome
-                    break
+        # elites = [False for i in range(eliteCount)]
+        # # Elite selection [[id: fitness]]
+        # for chromosome, fitness in enumerate(chromosomeFitness):
+        #     for index, elite in enumerate(elites):
+        #         if elite is False:
+        #             elites[index] = chromosome
+        #             break
+        #         elif fitness > chromosomeFitness[elite]:
+        #             elites[index] = chromosome
+        #             break
+        sortedFitness = sorted(enumerate(chromosomeFitness), key=itemgetter(1))
+        elites = list(map(lambda chromosome: chromosome[0], sortedFitness[eliteCount*-1:]))
         matingPool = []
         matingPoolSize = int((population - eliteCount) / 2)
         tournamentSize = int(self.tournamentSize * population)
@@ -635,7 +647,56 @@ class GeneticAlgorithm(QtCore.QThread):
         return offspring
 
     def mutation(self):
-        pass
+        sharings = self.data['sharings']
+        sections = self.data['sections']
+        mutationCandidates = {
+            'sections': {},
+            'sharings': [key for key in sharings.keys()]
+        }
+        # Prepare clean list of subject placement with consideration for sharing
+        for section, data in copy.deepcopy(sections).items():
+            mutationCandidates['sections'][section] = data[2]
+        for sharing in sharings.values():
+            for section in sharing[1]:
+                mutationCandidates['sections'][section].remove(sharing[0])
+        if not len(mutationCandidates['sharings']):
+            mutationCandidates.pop('sharings')
+        for section in copy.deepcopy(mutationCandidates['sections']):
+            if not len(mutationCandidates['sections'][section]):
+                mutationCandidates['sections'].pop(section)
+        # Randomly select chromosomes to mutate
+        for index, chromosome in enumerate(copy.deepcopy(self.chromosomes)):
+            if np.random.randint(100) > (self.mutationRate * 100) - 1:
+                continue
+            self.messageSignal.emit('Mutating Chromosome #{}'.format(index + 1))
+            self.tempChromosome = Chromosome(self.data)
+            # Select a gene to mutate
+            mutating = np.random.choice(list(mutationCandidates.keys()))
+            if mutating == 'sections':
+                section = np.random.choice(list(mutationCandidates['sections'].keys()))
+                mutating = ['sections', section, np.random.choice(mutationCandidates['sections'][section])]
+            else:
+                mutating = ['sharing', np.random.choice(mutationCandidates['sharings'])]
+            # Replicate chromosome except the mutating gene
+            for sharing in mutationCandidates['sharings']:
+                if mutating[0] == 'sharing' and sharing == mutating[1]:
+                    continue
+                details = chromosome.data['sharings'][sharing]
+                if len(details):
+                    self.tempChromosome.insertSchedule([details[0], sharings[sharing][1], sharings[sharing][0], details[1], *details[2:5], sharing])
+            for section, subjects in mutationCandidates['sections'].items():
+                for subject in subjects:
+                    if mutating[0] == 'sections' and mutating[1] == section and mutating[2] == subject:
+                        continue
+                    details = chromosome.data['sections'][section]['details'][subject]
+                    if len(details):
+                        self.tempChromosome.insertSchedule([details[0], [section], subject, details[1], *details[2:5]])
+            # Generate mutation
+            if mutating[0] == 'sharing':
+                self.generateSubjectPlacement(sharings[mutating[1]][1], sharings[mutating[1]][0], mutating[1])
+            else:
+                self.generateSubjectPlacement([mutating[1]], mutating[2])
+            self.chromosomes[index] = copy.deepcopy(self.tempChromosome)
 
     def adapt(self):
         pass
@@ -654,7 +715,6 @@ class GeneticAlgorithm(QtCore.QThread):
                 continue
             self.messageSignal.emit('Started Evaluation')
             self.evaluate()
-            # TODO: Emit signal for live data preview
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
             if round(self.averageFitness, 2) >= self.stopWhenAverageFitnessAt:
                 self.messageSignal.emit('Hit the required fitness!')
@@ -665,11 +725,11 @@ class GeneticAlgorithm(QtCore.QThread):
             self.selection()
             self.messageSignal.emit('Started Crossover')
             self.crossover()
-            # exit(619)
             self.messageSignal.emit('Started Mutation')
-            # self.mutation()
-            self.messageSignal.emit('Started Environment Tweaking')
+            self.mutation()
+            # self.messageSignal.emit('Started Environment Tweaking')
             # self.adapt()
+            # exit(619)
 
 
 class Chromosome:
@@ -705,7 +765,6 @@ class Chromosome:
     def __init__(self, data):
         self.fitness = 0
         self.fitnessDetails = []
-        self.mutationRate = 0
         self.data = {
             'sections': {},
             'sharings': {},
