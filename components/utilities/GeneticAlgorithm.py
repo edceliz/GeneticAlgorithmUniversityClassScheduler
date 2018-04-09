@@ -4,6 +4,7 @@ import copy
 import itertools
 import numpy as np
 from operator import itemgetter
+from collections import Counter
 
 
 class GeneticAlgorithm(QtCore.QThread):
@@ -13,6 +14,7 @@ class GeneticAlgorithm(QtCore.QThread):
     dataSignal = QtCore.pyqtSignal(object)
 
     averageFitness = 0
+    pastAverageFitness = 0
     running = True
     chromosomes = []
     data = {
@@ -24,9 +26,10 @@ class GeneticAlgorithm(QtCore.QThread):
     }
     stayInRoomAssignments = {}
     # This is in percent (.0-1)
-    tournamentSize = .10
+    tournamentSize = .04
     elitePercent = .05
     mutationRate = .10
+    lowVariety = 55
     elites = []
     matingPool = []
     offsprings = []
@@ -221,12 +224,12 @@ class GeneticAlgorithm(QtCore.QThread):
 
     def evaluate(self):
         totalChromosomeFitness = 0
+        self.pastAverageFitness = copy.deepcopy(self.averageFitness)
         for index, chromosome in enumerate(self.chromosomes):
             self.messageSignal.emit('Evaluating Chromosome #{}/{}'.format(index + 1, len(self.chromosomes)))
             chromosome.fitness = self.evaluateAll(chromosome)
             totalChromosomeFitness += chromosome.fitness
             self.averageFitness = totalChromosomeFitness / len(self.chromosomes)
-            self.metaSignal.emit([round(self.averageFitness, 2)])
         chromosomeFitness = sorted(enumerate(map(lambda chromosome: chromosome.fitness, self.chromosomes)), key=itemgetter(1))
         self.dataSignal.emit(list(map(lambda chromosome: [self.chromosomes[0], chromosome[1]], chromosomeFitness[-5:])))
         # self.dataSignal.emit(self.chromosomes)
@@ -459,6 +462,46 @@ class GeneticAlgorithm(QtCore.QThread):
         instructorLoadAverage = round(((instructorLoadAverage / len(activeInstructors)) / 50) * 100, 2)
         return instructorLoadAverage
 
+    def adapt(self):
+        deviation = self.getFitnessDeviation()
+        self.alignPopulation(deviation[0], deviation[1])
+        self.adjustMutationRate()
+
+    # sigma = [sigma], sigmaInstances = {sigma: instance%}
+    def getFitnessDeviation(self):
+        populationCount = len(self.chromosomes)
+        fitnesses = [chromosome.fitness for chromosome in self.chromosomes]
+        mean = np.mean(fitnesses)
+        sigmas = [int(fitness - mean) for fitness in fitnesses]
+        sigmaInstances = {sigma: (instance / populationCount) * 100 for sigma, instance in
+                          dict(Counter(sigmas)).items()}
+        return [sigmas, sigmaInstances]
+
+    def alignPopulation(self, sigmas, sigmaInstances):
+        populationCount = len(self.chromosomes)
+        if sigmaInstances[0] > self.lowVariety:
+            # Add the excess percentage of instances on first sigma to population
+            generate = int((int(sigmaInstances[0] - self.lowVariety) / 100) * populationCount)
+            while generate + populationCount > self.settings['maximum_population']:
+                generate -= 1
+            self.generateChromosome(generate)
+        else:
+            # Remove the excess percentage of instances on first sigma to population
+            sortedSigmas = sorted(enumerate(sigmas), key=itemgetter(1))
+            remove = int((int(self.lowVariety - sigmaInstances[0]) / 100) * populationCount)
+            while populationCount - remove < self.settings['minimum_population']:
+                remove -= 1
+            remove = [sortedSigmas[index][0] for index in range(remove)]
+            self.chromosomes = [chromosome for index, chromosome in enumerate(self.chromosomes) if index not in remove]
+
+    # Increase mutation rate for low performing generations and decrease for good performance
+    def adjustMutationRate(self):
+        if (self.averageFitness - self.pastAverageFitness < 0) or (abs(self.averageFitness - self.pastAverageFitness) <= self.settings['mutation_rate_adjustment_trigger']) and not self.mutationRate >= 100:
+            self.mutationRate += .05
+        elif self.mutationRate > .10:
+            self.mutationRate -= .05
+        self.mutationRate = round(self.mutationRate, 2)
+
     # Selects top 5% of population and performs tournament to generate remaining candidates
     def selection(self):
         population = len(self.chromosomes)
@@ -470,21 +513,13 @@ class GeneticAlgorithm(QtCore.QThread):
         else:
             eliteCount = eliteCount if eliteCount % 2 != 0 else eliteCount + 1
         self.messageSignal.emit('Selecting {} Elites'.format(eliteCount))
-        # elites = [False for i in range(eliteCount)]
-        # # Elite selection [[id: fitness]]
-        # for chromosome, fitness in enumerate(chromosomeFitness):
-        #     for index, elite in enumerate(elites):
-        #         if elite is False:
-        #             elites[index] = chromosome
-        #             break
-        #         elif fitness > chromosomeFitness[elite]:
-        #             elites[index] = chromosome
-        #             break
         sortedFitness = sorted(enumerate(chromosomeFitness), key=itemgetter(1))
         elites = list(map(lambda chromosome: chromosome[0], sortedFitness[eliteCount*-1:]))
         matingPool = []
         matingPoolSize = int((population - eliteCount) / 2)
         tournamentSize = int(self.tournamentSize * population)
+        if tournamentSize > 25:
+            tournamentSize = 25
         # Fill mating pool with couples selected by multiple tournaments
         for i in range(matingPoolSize):
             self.messageSignal.emit('Creating Couple #{}/{}'.format(i + 1, matingPoolSize))
@@ -698,39 +733,38 @@ class GeneticAlgorithm(QtCore.QThread):
                 self.generateSubjectPlacement([mutating[1]], mutating[2])
             self.chromosomes[index] = copy.deepcopy(self.tempChromosome)
 
-    def adapt(self):
-        pass
-
     def run(self):
-        self.messageSignal.emit('Started Initialization')
+        self.messageSignal.emit('Preparing Initialization')
         self.initialization()
-        self.messageSignal.emit('Initialization Complete')
         generation = 0
+        solution = False
         while self.running:
             generation += 1
+            print(generation, len(self.chromosomes), self.mutationRate, self.averageFitness)
             if self.settings['maximum_generations'] < generation:
                 self.messageSignal.emit('Hit the maximum generation!')
                 self.statusSignal.emit(1)
                 self.running = False
-                continue
-            self.messageSignal.emit('Started Evaluation')
+                break
+            self.messageSignal.emit('Preparing Evaluation')
             self.evaluate()
             self.metaSignal.emit([round(self.averageFitness, 2), generation])
             if round(self.averageFitness, 2) >= self.stopWhenAverageFitnessAt:
                 self.messageSignal.emit('Hit the required fitness!')
                 self.statusSignal.emit(1)
                 self.running = False
-                continue
-            self.messageSignal.emit('Started Selection')
+                solution = True
+                break
+            self.messageSignal.emit('Tweaking Environment')
+            self.adapt()
+            self.messageSignal.emit('Preparing Selection')
             self.selection()
-            self.messageSignal.emit('Started Crossover')
+            self.messageSignal.emit('Preparing Crossover')
             self.crossover()
-            self.messageSignal.emit('Started Mutation')
+            self.messageSignal.emit('Preparing Mutation')
             self.mutation()
-            # self.messageSignal.emit('Started Environment Tweaking')
-            # self.adapt()
-            # exit(619)
-
+        if solution:
+            pass
 
 class Chromosome:
     # data = {
