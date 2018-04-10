@@ -39,7 +39,7 @@ class Instructor:
         name = self.parent.lineEditName.text()
         try:
             hours = int(self.parent.lineEditHours.text())
-            if hours <= 0 or hours > 100:
+            if hours <= 0 or hours > 100 or hours % .5 != 0:
                 return False
         except:
             return False

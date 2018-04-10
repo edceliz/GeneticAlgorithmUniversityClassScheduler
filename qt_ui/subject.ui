@@ -60,7 +60,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Divisible Schedule</string>
+        <string>Divide Schedule</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>

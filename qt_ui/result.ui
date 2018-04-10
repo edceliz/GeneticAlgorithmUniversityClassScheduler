@@ -10,6 +10,18 @@
     <height>559</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>875</width>
+    <height>559</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>875</width>
+    <height>559</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Result Viewer</string>
   </property>

@@ -1,15 +1,14 @@
 {
   "starting_time": 12,
   "ending_time": 35,
-  "max_instructor_session": 3,
   "minimum_population": 50,
   "maximum_population": 100,
   "maximum_generations": 50,
   "generation_tolerance": 1500,
   "mutation_rate_adjustment_trigger": 0.08,
   "lunchbreak": true,
-  "force_meeting_patterns": true,
-  "low_computing_mode": false,
+  "elite_percent": 0.05,
+  "deviation_tolerance": 55,
   "evaluation_matrix": {
     "subject_placement": 40,
     "lunch_break": 10,
@@ -19,5 +18,5 @@
     "meeting_pattern": 10,
     "instructor_load": 10
   },
-  "max_average_fitness": 100
+  "maximum_fitness": 100
 }
