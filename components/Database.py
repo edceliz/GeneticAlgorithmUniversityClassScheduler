@@ -1,7 +1,6 @@
 import sqlite3
 
 def checkSetup():
-    # TODO: Provide better way of checking setup
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='instructors'")
@@ -12,7 +11,6 @@ def checkSetup():
     return True
 
 def setup():
-    # TODO: Optimize setup
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     create_instructors_table = """
@@ -37,7 +35,6 @@ def setup():
           )
         );
     """
-    # TODO: Consider adding `active` in subjects table
     create_subjects_table = """
         CREATE TABLE IF NOT EXISTS subjects (
           id INTEGER PRIMARY KEY,

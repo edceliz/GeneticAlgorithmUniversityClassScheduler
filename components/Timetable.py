@@ -4,7 +4,6 @@ from components import TableModel
 import json
 
 # Used for displaying toggable timetable
-# TODO: Assess for possible different version of timetable widget
 class Timetable:
     def __init__(self, table, data = False):
         self.table = table
@@ -42,7 +41,6 @@ class Timetable:
         return self.data
 
 # Timetable model that provides color support for availability status
-# TODO: Assess for possible different version of timetable widget
 class TimetableModel(TableModel.TableModel):
     def __init__(self, header, data):
         super().__init__(header, data)

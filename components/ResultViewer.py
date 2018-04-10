@@ -11,7 +11,7 @@ class ResultViewer:
         self.parent = parent = Parent.Ui_Dialog()
         # Add parent to custom dialog
         parent.setupUi(dialog)
-        self.table = table = self.parent.tableSchedule
+        self.table = table = self.parent.tableResult
         self.loadTable()
         dialog.exec_()
 

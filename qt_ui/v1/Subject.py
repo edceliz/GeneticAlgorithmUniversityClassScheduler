@@ -95,7 +95,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Subject"))
         self.lblHours.setText(_translate("Dialog", "Hours/Week"))
         self.lblName.setText(_translate("Dialog", "Name"))
-        self.groupBox_2.setTitle(_translate("Dialog", "Divisible Schedule"))
+        self.groupBox_2.setTitle(_translate("Dialog", "Divide Schedule"))
         self.radioYes.setText(_translate("Dialog", "Yes"))
         self.radioNo.setText(_translate("Dialog", "No"))
         self.groupBox.setTitle(_translate("Dialog", "Type"))

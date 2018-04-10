@@ -1,25 +1,33 @@
 from components import Instructor
 from components import ResultViewer
 from components import Room
-from components import ScenarioManager
 from components import Section
 from components import Subject
 from components import Generate
+from components import Settings
 from components.utilities import ImportExportHandler as ioHandler
 from qt_ui.v1 import Main
 import json
 from components import Timetable
+from PyQt5 import QtCore
+from components import Database
 
 class MainWindow(Main.Ui_MainWindow):
+    matrixSum = 0
+
     def __init__(self, parent):
         super().__init__()
+        self.parent = parent
         self.setupUi(parent)
         self.connectButtons()
+        self.settings = Settings.getSettings()
+        self.loadSettings()
+        self.handleSettings()
         self.drawTrees()
         # Tab change listener
         self.tabWidget.currentChanged.connect(self.tabListener)
         # Select default tab index
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(4)
 
     # Connect Main component buttons to respective actions
     def connectButtons(self):
@@ -34,7 +42,9 @@ class MainWindow(Main.Ui_MainWindow):
         self.btnSubjImport.clicked.connect(self.importSubjects)
         self.actionSave_As.triggered.connect(self.saveAs)
         self.actionOpen.triggered.connect(self.load)
-        self.btnScenGenerate.click()
+        self.actionSettings.triggered.connect(lambda: self.tabWidget.setCurrentIndex(4))
+        self.actionExit.triggered.connect(exit)
+        self.actionNew.triggered.connect(lambda: self.new())
 
     # Initialize trees and tables
     def drawTrees(self):
@@ -42,7 +52,6 @@ class MainWindow(Main.Ui_MainWindow):
         self.roomTree = Room.Tree(self.treeRoom)
         self.subjTree = Subject.Tree(self.treeSubj)
         self.secTree = Section.Tree(self.treeSec)
-        self.scenTree = ScenarioManager.Tree(self.treeScen)
 
     # Handle component openings
 
@@ -67,13 +76,13 @@ class MainWindow(Main.Ui_MainWindow):
         self.roomTree.display()
         self.subjTree.display()
         self.secTree.display()
-        self.scenTree.display()
 
     def openResult(self):
         ResultViewer.ResultViewer()
 
     def openGenerate(self):
         Generate.Generate()
+        # TODO: Data Handler for Generate to Result Viewer
 
     def importInstructors(self):
         instructors = ioHandler.getCSVFile('instructors')
@@ -109,4 +118,95 @@ class MainWindow(Main.Ui_MainWindow):
 
     def load(self):
         ioHandler.load()
+        self.tabListener()
+
+
+    def loadSettings(self):
+        self.timeStarting.setTime(QtCore.QTime(int(self.settings['starting_time'] / 2), 0))
+        self.timeEnding.setTime(QtCore.QTime(int(self.settings['ending_time'] / 2) + 1, 0))
+        if self.settings['lunchbreak']:
+            self.radioLunchYes.setChecked(True)
+        else:
+            self.radioLunchNo.setChecked(True)
+        self.editMinPop.setValue(self.settings['minimum_population'])
+        self.editMaxPop.setValue(self.settings['maximum_population'])
+        self.editMaxGen.setValue(self.settings['maximum_generations'])
+        self.editMaxCreation.setValue(self.settings['generation_tolerance'])
+        self.editMut.setValue(self.settings['mutation_rate_adjustment_trigger'])
+        self.editMaxFit.setValue(self.settings['maximum_fitness'])
+        self.editElite.setValue(int(self.settings['elite_percent'] * 100))
+        self.editDev.setValue(self.settings['deviation_tolerance'])
+        self.matrix = matrix = self.settings['evaluation_matrix']
+        self.editSbj.setValue(matrix['subject_placement'])
+        self.editLun.setValue(matrix['lunch_break'])
+        self.editSec.setValue(matrix['student_rest'])
+        self.editIdle.setValue(matrix['idle_time'])
+        self.editInstrRest.setValue(matrix['instructor_rest'])
+        self.editInstrLoad.setValue(matrix['instructor_load'])
+        self.editMeet.setValue(matrix['meeting_pattern'])
+        self.matrixSum = sum(matrix.values())
+        self.lblTotal.setText('Total: {}%'.format(self.matrixSum))
+
+    # Handle Settings
+    def handleSettings(self):
+        self.timeStarting.timeChanged.connect(self.handleStartingTime)
+        self.timeEnding.timeChanged.connect(self.handleEndingTime)
+        self.radioLunchYes.toggled.connect(lambda state: self.updateSettings('lunchbreak', state))
+        self.editMinPop.valueChanged.connect(self.handleMinPop)
+        self.editMaxPop.valueChanged.connect(self.handleMaxPop)
+        self.editMaxGen.valueChanged.connect(lambda value: self.updateSettings('maximum_generations', value))
+        self.editMaxCreation.valueChanged.connect(lambda value: self.updateSettings('generation_tolerance', value))
+        self.editMut.valueChanged.connect(lambda value: self.updateSettings('mutation_rate_adjustment_trigger', round(value, 2)))
+        self.editMaxFit.valueChanged.connect(lambda value: self.updateSettings('maximum_fitness', value))
+        self.editElite.valueChanged.connect(lambda value: self.updateSettings('elite_percent', round(value / 100, 2)))
+        self.editDev.valueChanged.connect(lambda value: self.updateSettings('deviation_tolerance', value))
+        self.editSbj.valueChanged.connect(lambda value: self.handleMatrix('subject_placement', value, self.editSbj))
+        self.editLun.valueChanged.connect(lambda value: self.handleMatrix('lunch_break', value, self.editLun))
+        self.editSec.valueChanged.connect(lambda value: self.handleMatrix('student_rest', value, self.editSec))
+        self.editIdle.valueChanged.connect(lambda value: self.handleMatrix('idle_time', value, self.editIdle))
+        self.editInstrRest.valueChanged.connect(lambda value: self.handleMatrix('instructor_rest', value, self.editInstrRest))
+        self.editInstrLoad.valueChanged.connect(lambda value: self.handleMatrix('instructor_load', value, self.editInstrLoad))
+        self.editMeet.valueChanged.connect(lambda value: self.handleMatrix('meeting_pattern', value, self.editMeet))
+
+    def handleStartingTime(self, time):
+        if time.hour() * 2 >= self.settings['ending_time']:
+            self.timeStarting.setTime(QtCore.QTime(int(self.settings['starting_time'] / 2), 0))
+        else:
+            self.updateSettings('starting_time', time.hour() * 2)
+
+    def handleEndingTime(self, time):
+        if (time.hour() * 2) - 1 <= self.settings['starting_time']:
+            self.timeEnding.setTime(QtCore.QTime(int(self.settings['ending_time'] / 2) + 1, 0))
+        else:
+            self.updateSettings('ending_time', (time.hour() * 2) - 1)
+
+    def handleMinPop(self, value):
+        if value > self.settings['maximum_population']:
+            self.editMinPop.setValue(self.settings['minimum_population'])
+        else:
+            self.updateSettings('minimum_population', value)
+
+    def handleMaxPop(self, value):
+        if value < self.settings['minimum_population']:
+            self.editMaxPop.setValue(self.settings['maximum_population'])
+        else:
+            self.updateSettings('maximum_population', value)
+
+    def handleMatrix(self, key, value, obj):
+        difference = self.matrix[key] - value
+        if self.matrixSum - difference > 100:
+            obj.setValue(self.matrix[key])
+        else:
+            self.updateSettings('evaluation_matrix', value, key)
+        self.matrixSum = sum(self.settings['evaluation_matrix'].values())
+        self.matrix = self.settings['evaluation_matrix']
+        self.lblTotal.setText('Total: {}%'.format(self.matrixSum))
+
+    def updateSettings(self, key, value, secondKey = False):
+        Settings.setSettings(key, value, secondKey)
+        self.settings = Settings.getSettings()
+
+    def new(self):
+        ioHandler.removeTables()
+        Database.setup()
         self.tabListener()
