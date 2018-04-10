@@ -8,12 +8,18 @@ from components import Settings
 from components.utilities import ImportExportHandler as ioHandler
 from qt_ui.v1 import Main
 import json
+import copy
 from components import Timetable
 from PyQt5 import QtCore
 from components import Database
 
 class MainWindow(Main.Ui_MainWindow):
     matrixSum = 0
+    result = {
+        'data': [],
+        'time': None,
+        'resource': None
+    }
 
     def __init__(self, parent):
         super().__init__()
@@ -27,7 +33,8 @@ class MainWindow(Main.Ui_MainWindow):
         # Tab change listener
         self.tabWidget.currentChanged.connect(self.tabListener)
         # Select default tab index
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(0)
+        self.btnScenResult.click()
 
     # Connect Main component buttons to respective actions
     def connectButtons(self):
@@ -78,11 +85,18 @@ class MainWindow(Main.Ui_MainWindow):
         self.secTree.display()
 
     def openResult(self):
-        ResultViewer.ResultViewer()
+        ResultViewer.ResultViewer(self.result)
 
     def openGenerate(self):
-        Generate.Generate()
-        # TODO: Data Handler for Generate to Result Viewer
+        result = Generate.Generate()
+        if not len(result.topChromosomes):
+            return False
+        self.result['data'] = copy.deepcopy(result.topChromosomes)
+        self.result['time'] = result.time.toString('hh:mm:ss')
+        self.result['resource'] = result.totalResource
+        self.result['rawData'] = result.topChromosomes[0][0].rawData
+        self.result['meta'] = result.meta
+        self.openResult()
 
     def importInstructors(self):
         instructors = ioHandler.getCSVFile('instructors')
@@ -119,7 +133,6 @@ class MainWindow(Main.Ui_MainWindow):
     def load(self):
         ioHandler.load()
         self.tabListener()
-
 
     def loadSettings(self):
         self.timeStarting.setTime(QtCore.QTime(int(self.settings['starting_time'] / 2), 0))

@@ -10,6 +10,7 @@ class ScheduleParser:
     # Instructor View
     # Subject Name + Instructor + Section
 
+    # table = QTableView, data = []
     def __init__(self, table, data):
         self.table = table
         header = [['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']]
@@ -28,15 +29,15 @@ class ScheduleParser:
         table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
         self.parseData(data)
 
+    # data = [{'color': None, 'text': '', 'instances': [[day, startingTS, endingTS]]}]
     def parseData(self, data):
         view = self.table
         model = self.model
-        startingTime = self.settings['starting_time']
         for entry in data:
             entry['color'] = Utilities.colorGenerator()
             for instance in entry['instances']:
-                index = model.index(instance[1] - startingTime, instance[0])
-                view.setSpan(instance[1] - startingTime, instance[0], instance[2] - instance[1] + 1, 1)
+                index = model.index(instance[1], instance[0])
+                view.setSpan(instance[1], instance[0], instance[2] - instance[1], 1)
                 item = QtGui.QStandardItem(entry['text'])
                 item.setBackground(QtGui.QBrush(QtGui.QColor(*entry['color'])))
                 item.setForeground(QtGui.QBrush(QtGui.QColor(*Utilities.textColor(entry['color']))))

@@ -73,11 +73,19 @@ def setup():
           )
         );
     """
+    create_results_table = """
+        CREATE TABLE IF NOT EXISTS results (
+          id INTEGER PRIMARY KEY,
+          content BLOB NOT NULL,
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    """
     cursor.execute(create_instructors_table)
     cursor.execute(create_rooms_table)
     cursor.execute(create_subjects_table)
     cursor.execute(create_sections_table)
     cursor.execute(create_sharing_table)
+    cursor.execute(create_results_table)
     conn.commit()
     conn.close()
 
