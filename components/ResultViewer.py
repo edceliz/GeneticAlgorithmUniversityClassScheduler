@@ -5,6 +5,7 @@ import copy
 from qt_ui.v1 import Result as Parent
 from components import ScheduleParser
 
+
 class ResultViewer:
     def __init__(self, result):
         self.result = result
@@ -13,12 +14,12 @@ class ResultViewer:
         self.parent = parent = Parent.Ui_Dialog()
         # Add parent to custom dialog
         parent.setupUi(dialog)
+        self.table = table = self.parent.tableResult
         self.run = True
         if not len(self.result['data']):
             self.getLastResult()
         self.parseResultDetails()
         self.connectWidgets()
-        self.table = table = self.parent.tableResult
         self.updateTable(0)
         if self.run:
             dialog.exec_()
@@ -69,6 +70,8 @@ class ResultViewer:
         parent.lblMeet.setText('Meeting Pattern: {}%'.format(meta[1][5]))
         parent.cmbCategory.setCurrentIndex(0)
         parent.cmbEntry.setCurrentIndex(0)
+        self.updateEntries(0)
+        self.updateTable(0)
 
     def updateEntries(self, index):
         if index == 0:
@@ -77,15 +80,59 @@ class ResultViewer:
             key = 'rooms'
         else:
             key = 'instructors'
+        self.entryKeys = []
+        self.changingKeys = True
         self.parent.cmbEntry.clear()
-        for entry in self.rawData[key].values():
+        for id, entry in self.rawData[key].items():
+            self.entryKeys.append(id)
             self.parent.cmbEntry.addItem(entry[0])
+        self.changingKeys = False
+        self.updateTable(self.parent.cmbEntry.currentIndex())
 
     def updateTable(self, index):
-        # TODO: Render table based on category and entry
-        self.loadTable([{'color': None, 'text': '', 'instances': [[index, 0, 3]]}])
+        if self.changingKeys:
+            return False
+        chromosome = self.result['data'][self.parent.cmbChromosome.currentIndex()]
+        category = self.parent.cmbCategory.currentIndex()
+        # {secId: {'details': {sbjId: [roomId, instructorId, [day/s], startingTS, length]}}}
+        sections = chromosome['sections']
+        rawData = self.rawData
+        data = []
+        # Section
+        if category == 0:
+            subjects = sections[self.entryKeys[index]]['details']
+            for subject, details in subjects.items():
+                instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
+                data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                                                                            rawData['rooms'][details[0]][0],
+                                                                            instructor),
+                             'instances': [[day, details[3], details[3] + details[4]] for day in details[2]]})
+        # Room
+        elif category == 1:
+            for section, details in sections.items():
+                for subject, subjectDetail in details['details'].items():
+                    if subjectDetail[0] != self.entryKeys[index]:
+                        continue
+                    instructor = '' if not subjectDetail[1] else rawData['instructors'][subjectDetail[1]][0]
+                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                                                                                rawData['sections'][section][0],
+                                                                                instructor),
+                                 'instances': [[day, subjectDetail[3], subjectDetail[3] + subjectDetail[4]] for day in
+                                               subjectDetail[2]]})
+        # Instructor
+        else:
+            for section, details in sections.items():
+                for subject, subjectDetail in details['details'].items():
+                    if subjectDetail[1] != self.entryKeys[index]:
+                        continue
+                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                                                                                rawData['rooms'][subjectDetail[0]][0],
+                                                                                rawData['sections'][section][0]),
+                                 'instances': [[day, subjectDetail[3], subjectDetail[3] + subjectDetail[4]] for day in
+                                               subjectDetail[2]]})
+        self.loadTable(data)
 
-    def loadTable(self, data = []):
+    def loadTable(self, data=[]):
         self.table.reset()
         self.table.clearSpans()
         ScheduleParser.ScheduleParser(self.table, data)

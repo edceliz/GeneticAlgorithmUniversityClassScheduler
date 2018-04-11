@@ -91,11 +91,11 @@ class MainWindow(Main.Ui_MainWindow):
         result = Generate.Generate()
         if not len(result.topChromosomes):
             return False
-        self.result['data'] = copy.deepcopy(result.topChromosomes)
-        self.result['time'] = result.time.toString('hh:mm:ss')
-        self.result['resource'] = result.totalResource
-        self.result['rawData'] = result.topChromosomes[0][0].rawData
-        self.result['meta'] = result.meta
+        # self.result['data'] = copy.deepcopy(result.topChromosomes)
+        # self.result['time'] = result.time.toString('hh:mm:ss')
+        # self.result['resource'] = result.totalResource
+        # self.result['rawData'] = result.topChromosomes[0][0].rawData
+        # self.result['meta'] = result.meta
         self.openResult()
 
     def importInstructors(self):
