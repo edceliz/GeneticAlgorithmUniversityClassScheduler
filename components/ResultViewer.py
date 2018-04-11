@@ -1,9 +1,12 @@
 from PyQt5 import QtWidgets, QtGui
 from components import Database as db
 import pickle
+import json
+import csv
 import copy
 from qt_ui.v1 import Result as Parent
 from components import ScheduleParser
+from components import Settings
 
 
 class ResultViewer:
@@ -16,6 +19,7 @@ class ResultViewer:
         parent.setupUi(dialog)
         self.table = table = self.parent.tableResult
         self.run = True
+        self.settings = Settings.getSettings()
         if not len(self.result['data']):
             self.getLastResult()
         self.parseResultDetails()
@@ -56,6 +60,7 @@ class ResultViewer:
         self.parent.cmbChromosome.currentIndexChanged.connect(self.updateDetails)
         self.parent.cmbCategory.currentIndexChanged.connect(self.updateEntries)
         self.parent.cmbEntry.currentIndexChanged.connect(self.updateTable)
+        self.parent.btnExport.clicked.connect(self.export)
 
     def updateDetails(self, index):
         parent = self.parent
@@ -102,6 +107,8 @@ class ResultViewer:
         if category == 0:
             subjects = sections[self.entryKeys[index]]['details']
             for subject, details in subjects.items():
+                if not len(details):
+                    continue
                 instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
                 data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
                                                                             rawData['rooms'][details[0]][0],
@@ -111,6 +118,8 @@ class ResultViewer:
         elif category == 1:
             for section, details in sections.items():
                 for subject, subjectDetail in details['details'].items():
+                    if not len(subjectDetail):
+                        continue
                     if subjectDetail[0] != self.entryKeys[index]:
                         continue
                     instructor = '' if not subjectDetail[1] else rawData['instructors'][subjectDetail[1]][0]
@@ -123,6 +132,8 @@ class ResultViewer:
         else:
             for section, details in sections.items():
                 for subject, subjectDetail in details['details'].items():
+                    if not len(subjectDetail):
+                        continue
                     if subjectDetail[1] != self.entryKeys[index]:
                         continue
                     data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
@@ -136,3 +147,74 @@ class ResultViewer:
         self.table.reset()
         self.table.clearSpans()
         ScheduleParser.ScheduleParser(self.table, data)
+
+    def export(self):
+        directory = QtWidgets.QFileDialog().getExistingDirectory(None, 'Select Directory for Export')
+        if not directory:
+            return False
+        with open('timeslots.json') as json_file:
+            timeslots = json.load(json_file)['timeslots']
+        fieldnames = ['Time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        rawData = self.rawData
+        chromosome = self.result['data'][self.parent.cmbChromosome.currentIndex()]
+        # Create schedule for sections
+        with open('{}/sections_schedule.csv'.format(directory), 'w', newline='') as file:
+            writer = csv.writer(file, dialect='excel')
+            for section, subjects in chromosome['sections'].items():
+                writer.writerow([self.rawData['sections'][section][0]])
+                writer.writerow(fieldnames)
+                schedule = [['' for j in range(6)] for i in
+                            range(self.settings['ending_time'] - self.settings['starting_time'] + 1)]
+                for subject, details in subjects['details'].items():
+                    if not len(details):
+                        continue
+                    instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
+                    for timeslot in range(details[3], details[3] + details[4]):
+                        for day in details[2]:
+                            schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                                                                            rawData['rooms'][details[0]][0],
+                                                                            instructor)
+                for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):
+                    writer.writerow([timeslots[timeslot], *schedule[timeslot - self.settings['starting_time']]])
+                writer.writerow([''])
+        # Create schedule for instructors
+        with open('{}/instructors_schedule.csv'.format(directory), 'w', newline='') as file:
+            writer = csv.writer(file, dialect='excel')
+            for instructor in rawData['instructors'].keys():
+                writer.writerow([rawData['instructors'][instructor][0]])
+                writer.writerow(fieldnames)
+                schedule = [['' for j in range(6)] for i in
+                            range(self.settings['ending_time'] - self.settings['starting_time'] + 1)]
+                for section, subjects in chromosome['sections'].items():
+                    for subject, details in subjects['details'].items():
+                        if not len(details) or details[1] != instructor:
+                            continue
+                        for timeslot in range(details[3], details[3] + details[4]):
+                            for day in details[2]:
+                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                                                                                rawData['rooms'][details[0]][0],
+                                                                                rawData['sections'][section][0])
+                    for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):
+                        writer.writerow([timeslots[timeslot], *schedule[timeslot - self.settings['starting_time']]])
+                writer.writerow([''])
+        # Create schedule for rooms
+        with open('{}/rooms_schedule.csv'.format(directory), 'w', newline='') as file:
+            writer = csv.writer(file, dialect='excel')
+            for room in rawData['rooms'].keys():
+                writer.writerow([rawData['rooms'][room][0]])
+                writer.writerow(fieldnames)
+                schedule = [['' for j in range(6)] for i in
+                            range(self.settings['ending_time'] - self.settings['starting_time'] + 1)]
+                for section, subjects in chromosome['sections'].items():
+                    for subject, details in subjects['details'].items():
+                        if not len(details) or details[0] != room:
+                            continue
+                        instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
+                        for timeslot in range(details[3], details[3] + details[4]):
+                            for day in details[2]:
+                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                                                                                rawData['sections'][section][0],
+                                                                                instructor)
+                for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):
+                    writer.writerow([timeslots[timeslot], *schedule[timeslot - self.settings['starting_time']]])
+                writer.writerow([''])

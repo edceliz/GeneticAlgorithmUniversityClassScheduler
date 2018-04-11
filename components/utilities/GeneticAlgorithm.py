@@ -65,16 +65,22 @@ class GeneticAlgorithm(QtCore.QThread):
             self.tempSharings = sharings = copy.deepcopy(self.data['sharings'])
             # [roomIds]
             self.rooms = rooms = list(self.data['rooms'].keys())
-            # Room selection for staying sections
+            # Distributed Room selection for staying sections
             if not len(self.stayInRoomAssignments):
-                # TODO: Distributed room selection
+                selectedRooms = []
                 for section in sections:
                     if sections[section][1]:
                         room = False
+                        attempts = 0
                         while not room:
+                            attempts += 1
                             candidate = np.random.choice(rooms)
-                            if self.data['rooms'][candidate][1] == 'lec':
+                            if attempts == self.settings['generation_tolerance']:
                                 room = candidate
+                            if self.data['rooms'][candidate][1] == 'lec':
+                                if candidate not in selectedRooms:
+                                    selectedRooms.append(copy.deepcopy(candidate))
+                                    room = candidate
                         sections[section][1] = room
                         self.stayInRoomAssignments[section] = room
             else:
