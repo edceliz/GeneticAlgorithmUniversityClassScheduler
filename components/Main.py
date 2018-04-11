@@ -34,7 +34,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.tabWidget.currentChanged.connect(self.tabListener)
         # Select default tab index
         self.tabWidget.setCurrentIndex(0)
-        self.btnScenResult.click()
+        self.btnScenGenerate.click()
 
     # Connect Main component buttons to respective actions
     def connectButtons(self):
@@ -91,11 +91,6 @@ class MainWindow(Main.Ui_MainWindow):
         result = Generate.Generate()
         if not len(result.topChromosomes):
             return False
-        # self.result['data'] = copy.deepcopy(result.topChromosomes)
-        # self.result['time'] = result.time.toString('hh:mm:ss')
-        # self.result['resource'] = result.totalResource
-        # self.result['rawData'] = result.topChromosomes[0][0].rawData
-        # self.result['meta'] = result.meta
         self.openResult()
 
     def importInstructors(self):

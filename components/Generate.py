@@ -12,23 +12,27 @@ import copy
 
 
 class Generate:
-    totalResource = {
-        'cpu': [],
-        'memory': []
-    }
-    tick = 0
-    data = {
-        'results': [],
-        'rooms': [],
-        'instructors': [],
-        'sections': [],
-        'sharings': [],
-        'subjects': []
-    }
-    topChromosomes = []
-    meta = []
-
     def __init__(self):
+        self.totalResource = {
+            'cpu': [],
+            'memory': []
+        }
+        self.tick = 0
+        self.data = {
+            'results': [],
+            'rooms': [],
+            'instructors': [],
+            'sections': [],
+            'sharings': [],
+            'subjects': []
+        }
+        self.topChromosomes = []
+        self.meta = []
+        self.preview = True
+        self.sectionKeys = []
+        composer = ScenarioComposer.ScenarioComposer()
+        composer = composer.getScenarioData()
+        self.data.update(composer)
         self.dialog = dialog = QtWidgets.QDialog()
         # Initialize custom dialog
         self.parent = parent = Parent.Ui_Dialog()
@@ -40,10 +44,20 @@ class Generate:
         self.timer.timeout.connect(self.updateTime)
         self.timer.start(1000)
         self.running = True
+        self.table = parent.tableSchedule
         parent.btnPause.clicked.connect(self.togglePause)
         parent.btnStop.clicked.connect(self.stopOperation)
+        parent.chkPreview.clicked.connect(self.togglePreview)
+        parent.cmbSection.clear()
+        for section, details in self.data['sections'].items():
+            self.sectionKeys.append(section)
+            parent.cmbSection.addItem(details[0])
+        parent.cmbSection.currentIndexChanged.connect(self.changePreview)
         self.startWorkers()
         dialog.exec_()
+
+    def togglePreview(self, state):
+        self.preview = not state
 
     def togglePause(self):
         self.toggleState()
@@ -58,9 +72,6 @@ class Generate:
         self.resourceWorker = ResourceTrackerWorker()
         self.resourceWorker.signal.connect(lambda resource: self.updateResource(resource))
         self.resourceWorker.start()
-        composer = ScenarioComposer.ScenarioComposer()
-        composer = composer.getScenarioData()
-        self.data.update(composer)
         self.geneticAlgorithm = GeneticAlgorithm.GeneticAlgorithm(self.data)
         self.geneticAlgorithm.statusSignal.connect(self.updateStatus)
         self.geneticAlgorithm.detailsSignal.connect(self.updateDetails)
@@ -83,6 +94,30 @@ class Generate:
     def updateView(self, chromosomes):
         chromosomes.reverse()
         self.topChromosomes = copy.deepcopy(chromosomes)
+        self.changePreview(self.parent.cmbSection.currentIndex())
+
+    def changePreview(self, index):
+        data = []
+        if not len(self.topChromosomes) or not self.preview:
+            return False
+        sections = self.topChromosomes[0][0].data['sections']
+        rawData = self.data
+        subjects = sections[self.sectionKeys[index]]['details']
+        print(subjects)
+        for subject, details in subjects.items():
+            if not len(details):
+                continue
+            instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
+            data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                                                                        rawData['rooms'][details[0]][0],
+                                                                        instructor),
+                         'instances': [[day, details[3], details[3] + details[4]] for day in details[2]]})
+        self.loadTable(data)
+
+    def loadTable(self, data=[]):
+        self.table.reset()
+        self.table.clearSpans()
+        ScheduleParser.ScheduleParser(self.table, data)
 
     def updateOperation(self, type):
         self.toggleState(False)
