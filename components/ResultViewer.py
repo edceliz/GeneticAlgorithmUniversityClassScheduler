@@ -110,7 +110,7 @@ class ResultViewer:
                 if not len(details):
                     continue
                 instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
-                data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][2],
                                                                             rawData['rooms'][details[0]][0],
                                                                             instructor),
                              'instances': [[day, details[3], details[3] + details[4]] for day in details[2]]})
@@ -123,7 +123,7 @@ class ResultViewer:
                     if subjectDetail[0] != self.entryKeys[index]:
                         continue
                     instructor = '' if not subjectDetail[1] else rawData['instructors'][subjectDetail[1]][0]
-                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][2],
                                                                                 rawData['sections'][section][0],
                                                                                 instructor),
                                  'instances': [[day, subjectDetail[3], subjectDetail[3] + subjectDetail[4]] for day in
@@ -136,7 +136,7 @@ class ResultViewer:
                         continue
                     if subjectDetail[1] != self.entryKeys[index]:
                         continue
-                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][0],
+                    data.append({'color': None, 'text': '{} \n {} \n {}'.format(rawData['subjects'][subject][2],
                                                                                 rawData['rooms'][subjectDetail[0]][0],
                                                                                 rawData['sections'][section][0]),
                                  'instances': [[day, subjectDetail[3], subjectDetail[3] + subjectDetail[4]] for day in
