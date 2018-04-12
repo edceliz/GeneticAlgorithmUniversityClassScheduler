@@ -497,7 +497,7 @@ class GeneticAlgorithm(QtCore.QThread):
 
     def alignPopulation(self, sigmas, sigmaInstances):
         populationCount = len(self.chromosomes)
-        if sigmaInstances[0] > self.lowVariety:
+        if list(sigmaInstances.values())[0] > self.lowVariety:
             # Add the excess percentage of instances on first sigma to population
             generate = int((int(sigmaInstances[0] - self.lowVariety) / 100) * populationCount)
             while generate + populationCount > self.settings['maximum_population']:

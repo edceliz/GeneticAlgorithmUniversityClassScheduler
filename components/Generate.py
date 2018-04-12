@@ -103,7 +103,6 @@ class Generate:
         sections = self.topChromosomes[0][0].data['sections']
         rawData = self.data
         subjects = sections[self.sectionKeys[index]]['details']
-        print(subjects)
         for subject, details in subjects.items():
             if not len(details):
                 continue
@@ -140,10 +139,8 @@ class Generate:
             self.parent.lblStatus.setText('Status: Stopped')
             self.totalResource['cpu'] = mean(self.totalResource['cpu'])
             self.totalResource['memory'] = mean(self.totalResource['memory'])
-            print(self.topChromosomes)
             self.meta = [[chromosome[1], chromosome[0].fitnessDetails] for chromosome in
                          self.topChromosomes]
-            print([meta[1] for meta in self.meta])
             conn = db.getConnection()
             cursor = conn.cursor()
             cursor.execute('INSERT INTO results (content) VALUES (?)', [Binary(
