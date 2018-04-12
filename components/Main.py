@@ -8,7 +8,6 @@ from components import Settings
 from components.utilities import ImportExportHandler as ioHandler
 from qt_ui.v1 import Main
 import json
-import copy
 from components import Timetable
 from PyQt5 import QtCore
 from components import Database
@@ -77,11 +76,33 @@ class MainWindow(Main.Ui_MainWindow):
         Section.Section(id)
         self.secTree.display()
 
-    def tabListener(self):
+    def tabListener(self, index):
         self.instrTree.display()
         self.roomTree.display()
         self.subjTree.display()
         self.secTree.display()
+        if index == 4:
+            self.checkContents()
+
+    def checkContents(self):
+        conn = Database.getConnection()
+        cursor = conn.cursor()
+        disabled = False
+        cursor.execute('SELECT id FROM rooms LIMIT 1')
+        if cursor.fetchone():
+            disabled = True
+        cursor.execute('SELECT id FROM instructors LIMIT 1')
+        if cursor.fetchone():
+            disabled = True
+        cursor.execute('SELECT id FROM sections LIMIT 1')
+        if cursor.fetchone():
+            disabled = True
+        cursor.execute('SELECT id FROM subjects LIMIT 1')
+        if cursor.fetchone():
+            disabled = True
+        self.timeStarting.setDisabled(disabled)
+        self.timeEnding.setDisabled(disabled)
+        conn.close()
 
     def openResult(self):
         ResultViewer.ResultViewer(self.result)
@@ -100,7 +121,7 @@ class MainWindow(Main.Ui_MainWindow):
             blankSchedule = json.dumps(Timetable.generateRawTable())
             for instructor in instructors:
                 Instructor.Instructor.insertInstructor([instructor[0], float(instructor[1]), blankSchedule])
-            self.tabListener()
+            self.tabListener(0)
 
     def importRooms(self):
         rooms = ioHandler.getCSVFile('rooms')
@@ -110,7 +131,7 @@ class MainWindow(Main.Ui_MainWindow):
             blankSchedule = json.dumps(Timetable.generateRawTable())
             for room in rooms:
                 Room.Room.insertRoom([room[0], blankSchedule, room[1]])
-            self.tabListener()
+            self.tabListener(1)
 
     def importSubjects(self):
         subjects = ioHandler.getCSVFile('subjects')
@@ -119,14 +140,15 @@ class MainWindow(Main.Ui_MainWindow):
             subjects.pop(0)
             for subject in subjects:
                 Subject.Subject.insertSubject([subject[1], float(subject[3]), subject[0], '', json.dumps([]), int(subject[4]), subject[2]])
-        self.tabListener()
+        self.tabListener(2)
 
     def saveAs(self):
         ioHandler.saveAs()
 
     def load(self):
         ioHandler.load()
-        self.tabListener()
+        self.tabWidget.setCurrentIndex(0)
+        self.tabListener(0)
 
     def loadSettings(self):
         self.timeStarting.setTime(QtCore.QTime(int(self.settings['starting_time'] / 2), 0))
@@ -216,4 +238,4 @@ class MainWindow(Main.Ui_MainWindow):
     def new(self):
         ioHandler.removeTables()
         Database.setup()
-        self.tabListener()
+        self.tabListener(0)

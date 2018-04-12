@@ -171,7 +171,7 @@ class ResultViewer:
                     instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
                     for timeslot in range(details[3], details[3] + details[4]):
                         for day in details[2]:
-                            schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                            schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][2],
                                                                             rawData['rooms'][details[0]][0],
                                                                             instructor)
                 for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):
@@ -191,7 +191,7 @@ class ResultViewer:
                             continue
                         for timeslot in range(details[3], details[3] + details[4]):
                             for day in details[2]:
-                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][2],
                                                                                 rawData['rooms'][details[0]][0],
                                                                                 rawData['sections'][section][0])
                     for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):
@@ -212,7 +212,7 @@ class ResultViewer:
                         instructor = '' if not details[1] else rawData['instructors'][details[1]][0]
                         for timeslot in range(details[3], details[3] + details[4]):
                             for day in details[2]:
-                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][0],
+                                schedule[timeslot][day] = '{} - {} - {}'.format(rawData['subjects'][subject][2],
                                                                                 rawData['sections'][section][0],
                                                                                 instructor)
                 for timeslot in range(self.settings['starting_time'], self.settings['ending_time'] + 1):

@@ -17,31 +17,30 @@ class GeneticAlgorithm(QtCore.QThread):
     # List of chromosomes for preview
     dataSignal = QtCore.pyqtSignal(list)
 
-    averageFitness = 0
-    pastAverageFitness = 0
-    running = True
-    chromosomes = []
-    data = {
-        'rooms': [],
-        'instructors': [],
-        'sections': [],
-        'sharings': [],
-        'subjects': []
-    }
-    stayInRoomAssignments = {}
-    tournamentSize = .04
-    elitePercent = .05
-    mutationRate = .10
-    lowVariety = 55
-    highestFitness = 0
-    lowestFitness = 100
-    elites = []
-    matingPool = []
-    offsprings = []
-    tempChromosome = None
-    tempSections = None
-
     def __init__(self, data):
+        self.averageFitness = 0
+        self.pastAverageFitness = 0
+        self.running = True
+        self.chromosomes = []
+        self.data = {
+            'rooms': [],
+            'instructors': [],
+            'sections': [],
+            'sharings': [],
+            'subjects': []
+        }
+        self.stayInRoomAssignments = {}
+        self.tournamentSize = .04
+        self.elitePercent = .05
+        self.mutationRate = .10
+        self.lowVariety = 55
+        self.highestFitness = 0
+        self.lowestFitness = 100
+        self.elites = []
+        self.matingPool = []
+        self.offsprings = []
+        self.tempChromosome = None
+        self.tempSections = None
         self.data = data
         self.settings = Settings.getSettings()
         self.stopWhenMaxFitnessAt = self.settings['maximum_fitness']
@@ -497,16 +496,17 @@ class GeneticAlgorithm(QtCore.QThread):
 
     def alignPopulation(self, sigmas, sigmaInstances):
         populationCount = len(self.chromosomes)
-        if list(sigmaInstances.values())[0] > self.lowVariety:
+        sigmaStartingInstance = list(sigmaInstances.values())[0]
+        if sigmaStartingInstance > self.lowVariety:
             # Add the excess percentage of instances on first sigma to population
-            generate = int((int(sigmaInstances[0] - self.lowVariety) / 100) * populationCount)
+            generate = int((int(sigmaStartingInstance - self.lowVariety) / 100) * populationCount)
             while generate + populationCount > self.settings['maximum_population']:
                 generate -= 1
             self.generateChromosome(generate)
         else:
             # Remove the excess percentage of instances on first sigma to population
             sortedSigmas = sorted(enumerate(sigmas), key=itemgetter(1))
-            remove = int((int(self.lowVariety - sigmaInstances[0]) / 100) * populationCount)
+            remove = int((int(self.lowVariety - sigmaStartingInstance) / 100) * populationCount)
             while populationCount - remove < self.settings['minimum_population']:
                 remove -= 1
             remove = [sortedSigmas[index][0] for index in range(remove)]
