@@ -13,15 +13,14 @@ from PyQt5 import QtCore
 from components import Database
 
 class MainWindow(Main.Ui_MainWindow):
-    matrixSum = 0
-    result = {
-        'data': [],
-        'time': None,
-        'resource': None
-    }
-
     def __init__(self, parent):
         super().__init__()
+        matrixSum = 0
+        result = {
+            'data': [],
+            'time': None,
+            'resource': None
+        }
         self.parent = parent
         self.setupUi(parent)
         self.connectButtons()

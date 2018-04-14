@@ -17,6 +17,8 @@ COMP111,Introdction to Information Systems,lec,2,1
 COMP111L,Introdction to Information Systems,lab,1,0
 ETHNS102,Euthenics 2,lec,1,1
 ENGL201,Speech Communication 1,lec,3,1
+ENGL202,Speech Communication 2,lec,3,1
+ENGL203,Speech Communication 3,lec,3,1
 FILI102,Pagbasa at Pagsulat Tungo sa Pananaliksik,lec,3,1
 PSCI101,"Philippine History, Politics, Governance & Constitution",lec,3,1
 MATH214,Calculus with Analytic Geometry 2,lec,4,1
@@ -50,6 +52,8 @@ NSTP102,National Service Training Program 2,lec,2,0
 HUMA101,Philosophy of Man,lec,3,1
 NSCI111,College Physics 1,lec,2,1
 NSCI111L,College Physics 1,lab,1,0
+NSCI112,College Physics 2,lec,2,1
+NSCI112L,College Physics 2,lab,1,0
 CS321,Data Structures & Algorithm Analysis,lec,2,1
 CS321L,Data Structures & Algorithm Analysis,lab,1,0
 MATH233,Discrete Structures 2,lec,3,1
@@ -61,6 +65,7 @@ IT211L,CISCO 1,lab,1,0
 CS311,Principles of Programming Language with Compiler,lec,2,1
 CS311L,Principles of Programming Language with Compiler,lab,1,0
 CS312,Automata and Formal Language Theory,lec,3,1
+CS371,Instroduction to Software Engineering,lec,3,1
 CS372,Introduction to Software Engineering,lec,2,1
 CS372L,Introduction to Software Engineering,lab,1,0
 CS361,Algorithm Analysis and Design,lec,3,1
@@ -70,12 +75,12 @@ RSCH400,Research 1A,lec,1,1
 SSCI111,Life & Works of Jose Rizal,lec,3,1
 CS342,Principles of Operating Systems and its Applications,lec,2,1
 CS342L,Principles of Operating Systems and its Applications,lab,1,0
-CS251,Database Management System 1,lec,2,1
-CS251L,Database Management System 1,lab,1,0
+CS351,Database Management System 1,lec,2,1
+CS351L,Database Management System 1,lab,1,0
 CPE202,Logic Design & Digital Computer Circuits,lec,2,1
 CPE202L,Logic Design & Digital Computer Circuits,lab,1,0
-CS279,Unified Functional Testing (HP),lec,2,1
-CS279L,Unified Functional Testing (HP),lab,1,0
+CS379,Unified Functional Testing (HP),lec,2,1
+CS379L,Unified Functional Testing (HP),lab,1,0
 CS362,Modelling and Simulation,lec,2,1
 CS362L,Modelling and Simulation,lab,1,0
 CS411,Professional Ethics in IT,lec,3,1
