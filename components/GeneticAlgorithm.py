@@ -1,10 +1,10 @@
 from PyQt5 import QtCore
 from components import Settings
+from operator import itemgetter
+from collections import Counter
 import copy
 import itertools
 import numpy as np
-from operator import itemgetter
-from collections import Counter
 
 
 class GeneticAlgorithm(QtCore.QThread):
@@ -473,6 +473,8 @@ class GeneticAlgorithm(QtCore.QThread):
         # Calculate the average instructor load. Closer to 50% means equal distribution which is better
         for instructor in activeInstructors.values():
             instructorLoadAverage += (instructor[1] / instructor[0]) * 100
+        if not len(activeInstructors):
+            return 100.00
         instructorLoadAverage = round(((instructorLoadAverage / len(activeInstructors)) / 50) * 100, 2)
         return instructorLoadAverage
 
@@ -646,7 +648,7 @@ class GeneticAlgorithm(QtCore.QThread):
         for section in parentBSections:
             parentBShareables['sections'][section] = {}
             for id, subject in parentBSections[section].items():
-                if id not in parentAShareables['sections'][section].keys():
+                if not (id in list(parentAShareables['sections'][section].keys())):
                     parentBShareables['sections'][section][id] = subject
         # List of unplaced sharings with or without data
         unplacedSharings = {}

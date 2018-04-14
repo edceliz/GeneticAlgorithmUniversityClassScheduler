@@ -8,11 +8,12 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(716, 553)
-        Dialog.setMinimumSize(QtCore.QSize(731, 553)) #553
+        Dialog.setMinimumSize(QtCore.QSize(731, 553))  # 553
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setSpacing(0)
@@ -21,9 +22,9 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 697, 759)) #697
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 697, 759))  # 697
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setContentsMargins(9,9,9,9)
+        self.scrollAreaWidgetContents.setContentsMargins(9, 9, 9, 9)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.verticalLayout.setContentsMargins(0, 9, 0, 0)
@@ -72,4 +73,3 @@ class Ui_Dialog(object):
         self.checkStay.setText(_translate("Dialog", "Stay in Room"))
         self.btnFinish.setText(_translate("Dialog", "Finish"))
         self.btnCancel.setText(_translate("Dialog", "Cancel"))
-

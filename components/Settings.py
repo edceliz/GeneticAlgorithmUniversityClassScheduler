@@ -1,5 +1,6 @@
 import json
 
+
 class Settings:
     def __init__(self):
         with open('settings.json') as json_file:
@@ -8,17 +9,20 @@ class Settings:
     def getSetting(self, key):
         return self.settings[key]
 
+
 def getSetting(key):
     with open('settings.json') as json_file:
         settings = json.load(json_file)
     return settings[key]
+
 
 def getSettings():
     with open('settings.json') as json_file:
         settings = json.load(json_file)
     return settings
 
-def setSettings(key, value, secondKey = False):
+
+def setSettings(key, value, secondKey=False):
     settings = getSettings()
     if secondKey:
         settings[key][secondKey] = value

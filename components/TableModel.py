@@ -1,5 +1,6 @@
 from PyQt5 import QtCore
 
+
 # Standard table model requires 2D header and complete dataset
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, header, data):

@@ -1,7 +1,8 @@
 import sqlite3
 
+
 def checkSetup():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('gas.db')
     cursor = conn.cursor()
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='instructors'")
     result = cursor.fetchone()
@@ -10,8 +11,9 @@ def checkSetup():
         return False
     return True
 
+
 def setup():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('gas.db')
     cursor = conn.cursor()
     create_instructors_table = """
         CREATE TABLE IF NOT EXISTS instructors (
@@ -89,5 +91,6 @@ def setup():
     conn.commit()
     conn.close()
 
+
 def getConnection():
-    return sqlite3.connect('database.db')
+    return sqlite3.connect('gas.db')

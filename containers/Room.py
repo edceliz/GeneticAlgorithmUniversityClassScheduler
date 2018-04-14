@@ -1,21 +1,22 @@
 from PyQt5 import QtWidgets, QtGui
-from qt_ui.v1 import Instructor as Parent
-from components import Timetable
-from components import Database as db
+from components import Database as db, Timetable
+from py_ui import Room as Parent
 import json
 
 
-class Instructor:
+class Room:
     def __init__(self, id):
         self.id = id
+        # New instance of dialog
         self.dialog = dialog = QtWidgets.QDialog()
-        # From the qt_ui generated UI
+        # Initialize custom dialog
         self.parent = parent = Parent.Ui_Dialog()
+        # Add parent to custom dialog
         parent.setupUi(dialog)
+        # Connect timetable widget with custom timetable model
         if id:
             self.fillForm()
         else:
-            # Create a new instance of timetable
             self.table = Timetable.Timetable(parent.tableSchedule)
         parent.btnFinish.clicked.connect(self.finish)
         parent.btnCancel.clicked.connect(self.dialog.close)
@@ -24,121 +25,103 @@ class Instructor:
     def fillForm(self):
         conn = db.getConnection()
         cursor = conn.cursor()
-        cursor.execute('SELECT name, hours, schedule FROM instructors WHERE id = ?', [self.id])
+        cursor.execute('SELECT name, schedule, type FROM rooms WHERE id = ?', [self.id])
         result = cursor.fetchone()
         conn.close()
         self.parent.lineEditName.setText(str(result[0]))
-        self.parent.lineEditHours.setText(str(result[1]))
-        # Generate timetable from custom schedule
-        self.table = Timetable.Timetable(self.parent.tableSchedule, json.loads(result[2]))
+        self.table = Timetable.Timetable(self.parent.tableSchedule, json.loads(result[1]))
+        if result[2] == 'lec':
+            self.parent.radioLec.setChecked(True)
+        else:
+            self.parent.radioLab.setChecked(True)
 
     def finish(self):
-        # Verification of input
         if not self.parent.lineEditName.text():
             return False
         name = self.parent.lineEditName.text()
-        try:
-            hours = int(self.parent.lineEditHours.text())
-            if hours <= 0 or hours > 100 or hours % .5 != 0:
-                return False
-        except:
-            return False
-        data = [name, hours, json.dumps(self.table.getData()), self.id]
+        type = 'lec' if self.parent.radioLec.isChecked() else 'lab'
+        data = [name, json.dumps(self.table.getData()), type, self.id]
         if not self.id:
             data.pop()
-        self.insertInstructor(data)
+        self.insertRoom(data)
         self.dialog.close()
 
     @staticmethod
-    def insertInstructor(data):
+    def insertRoom(data):
         conn = db.getConnection()
         cursor = conn.cursor()
         if len(data) > 3:
-            cursor.execute('UPDATE instructors SET name = ?, hours = ?, schedule = ? WHERE id = ?', data)
+            cursor.execute('UPDATE rooms SET name = ?, schedule = ?, type = ? WHERE id = ?', data)
         else:
-            cursor.execute('INSERT INTO instructors (name, hours, schedule) VALUES (?, ?, ?)', data)
+            cursor.execute('INSERT INTO rooms (name, schedule, type) VALUES (?, ?, ?)', data)
         conn.commit()
         conn.close()
-        return True
+
 
 class Tree:
     def __init__(self, tree):
         self.tree = tree
         self.model = model = QtGui.QStandardItemModel()
-        model.setHorizontalHeaderLabels(['ID', 'Available', 'Name', 'Hours', 'Operation'])
+        model.setHorizontalHeaderLabels(['ID', 'Available', 'Name', 'Operation'])
         tree.setModel(model)
         tree.setColumnHidden(0, True)
         model.itemChanged.connect(lambda item: self.toggleAvailability(item))
         self.display()
 
     def toggleAvailability(self, item):
-        # Get ID of toggled instructor
         id = self.model.data(self.model.index(item.row(), 0))
         newValue = 1 if item.checkState() == 2 else 0
         conn = db.getConnection()
         cursor = conn.cursor()
-        cursor.execute('UPDATE instructors SET active = ?  WHERE id = ?', [newValue, id])
+        cursor.execute('UPDATE rooms SET active = ?  WHERE id = ?', [newValue, id])
         conn.commit()
         conn.close()
 
     def display(self):
-        # Clear model
         self.model.removeRows(0, self.model.rowCount())
         conn = db.getConnection()
         cursor = conn.cursor()
-        cursor.execute('SELECT id, active, hours, name FROM instructors')
+        cursor.execute('SELECT id, active, name FROM rooms')
         result = cursor.fetchall()
         conn.close()
-        for instr in result:
-            # ID Item
-            id = QtGui.QStandardItem(str(instr[0]))
+        for entry in result:
+            id = QtGui.QStandardItem(str(entry[0]))
             id.setEditable(False)
-            # Availability Item
             availability = QtGui.QStandardItem()
             availability.setCheckable(True)
-            availability.setCheckState(2 if instr[1] == 1 else 0)
+            availability.setCheckState(2 if entry[1] == 1 else 0)
             availability.setEditable(False)
-            # Hours Item
-            hours = QtGui.QStandardItem(str(instr[2]))
-            hours.setEditable(False)
-            # Name Item
-            name = QtGui.QStandardItem(instr[3])
+            name = QtGui.QStandardItem(entry[2])
             name.setEditable(False)
-            # Edit Item / Container for operation buttons
             edit = QtGui.QStandardItem()
             edit.setEditable(False)
-            # Append items to model
-            self.model.appendRow([id, availability, name, hours, edit])
-            # Create a widget group for edit and delete buttons
+            self.model.appendRow([id, availability, name, edit])
             frameEdit = QtWidgets.QFrame()
             btnEdit = QtWidgets.QPushButton('Edit', frameEdit)
-            btnEdit.clicked.connect(lambda state, id=instr[0]: self.edit(id))
+            btnEdit.clicked.connect(lambda state, id=entry[0]: self.edit(id))
             btnDelete = QtWidgets.QPushButton('Delete', frameEdit)
-            btnDelete.clicked.connect(lambda state, id=instr[0]: self.delete(id))
+            btnDelete.clicked.connect(lambda state, id=entry[0]: self.delete(id))
             frameLayout = QtWidgets.QHBoxLayout(frameEdit)
             frameLayout.setContentsMargins(0, 0, 0, 0)
             frameLayout.addWidget(btnEdit)
             frameLayout.addWidget(btnDelete)
-            # Append the widget group to edit item
             self.tree.setIndexWidget(edit.index(), frameEdit)
 
     def edit(self, id):
-        Instructor(id)
+        Room(id)
         self.display()
 
     def delete(self, id):
-        # Show confirm model
         confirm = QtWidgets.QMessageBox()
         confirm.setIcon(QtWidgets.QMessageBox.Warning)
         confirm.setText('Are you sure you want to delete this entry?')
         confirm.setWindowTitle('Confirm Delete')
         confirm.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         result = confirm.exec_()
-        # 16384 == Confirm
         if result == 16384:
             conn = db.getConnection()
             cursor = conn.cursor()
-            cursor.execute('DELETE FROM instructors WHERE id = ?', [id])
+            cursor.execute('DELETE FROM rooms WHERE id = ?', [id])
             conn.commit()
             conn.close()
             self.display()

@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets, QtGui
-from qt_ui.v1 import Section as Parent
-from components import Timetable
-from components import Database as db
-from components import Share
+from containers import Share
+from components import Database as db, Timetable
+from py_ui import Section as Parent
 import json
+
 
 class Section:
     def __init__(self, id):
@@ -151,12 +151,15 @@ class Section:
             for id in self.shareId:
                 cursor.execute('UPDATE sharings SET final = 1 WHERE id = ?', [id])
         if self.id:
-            cursor.execute('UPDATE sections SET name = ?, schedule = ?, subjects = ?, stay = ? WHERE id = ?', [name, schedule, subjects, stay, self.id])
+            cursor.execute('UPDATE sections SET name = ?, schedule = ?, subjects = ?, stay = ? WHERE id = ?',
+                           [name, schedule, subjects, stay, self.id])
         else:
-            cursor.execute('INSERT INTO sections (name, schedule, subjects, stay) VALUES (?, ?, ?, ?)', [name, schedule, subjects, stay])
+            cursor.execute('INSERT INTO sections (name, schedule, subjects, stay) VALUES (?, ?, ?, ?)',
+                           [name, schedule, subjects, stay])
         conn.commit()
         conn.close()
         self.dialog.close()
+
 
 class Tree:
     def __init__(self, tree):
@@ -200,9 +203,9 @@ class Tree:
             self.model.appendRow([id, availability, name, stay, edit])
             frameEdit = QtWidgets.QFrame()
             btnEdit = QtWidgets.QPushButton('Edit', frameEdit)
-            btnEdit.clicked.connect(lambda state, id = instr[0]: self.edit(id))
+            btnEdit.clicked.connect(lambda state, id=instr[0]: self.edit(id))
             btnDelete = QtWidgets.QPushButton('Delete', frameEdit)
-            btnDelete.clicked.connect(lambda state, id = instr[0]: self.delete(id))
+            btnDelete.clicked.connect(lambda state, id=instr[0]: self.delete(id))
             frameLayout = QtWidgets.QHBoxLayout(frameEdit)
             frameLayout.setContentsMargins(0, 0, 0, 0)
             frameLayout.addWidget(btnEdit)

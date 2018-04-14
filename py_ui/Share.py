@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -37,4 +38,3 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Share Subject"))
         self.btnFinish.setText(_translate("Dialog", "Share"))
         self.btnCancel.setText(_translate("Dialog", "Cancel"))
-

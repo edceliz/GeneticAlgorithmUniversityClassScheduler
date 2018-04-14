@@ -1,7 +1,8 @@
 from PyQt5 import QtWidgets, QtGui
-from qt_ui.v1 import Share as Parent
 from components import Database as db
+from py_ui import Share as Parent
 import json
+
 
 class Share:
     def __init__(self, subject_id, section_id):
@@ -41,7 +42,9 @@ class Share:
         sections = cursor.fetchall()
         cursor.execute('SELECT id, sections FROM sharings WHERE subjectId = ? AND final = 1', [self.id])
         sharings = cursor.fetchall()
-        sharedSections = list(set([section for sectionGroup in list(map(lambda sharing: list(map(lambda id: int(id), json.loads(sharing[1]))), sharings)) for section in sectionGroup]))
+        sharedSections = list(set([section for sectionGroup in list(
+            map(lambda sharing: list(map(lambda id: int(id), json.loads(sharing[1]))), sharings)) for section in
+                                   sectionGroup]))
         sharings = dict(sharings)
         conn.close()
         sectionDict = {}
@@ -74,7 +77,8 @@ class Share:
         conn = db.getConnection()
         cursor = conn.cursor()
         if not shareId:
-            cursor.execute('INSERT INTO sharings (subjectId, sections) VALUES (?, ?)', [self.id, json.dumps([self.section_id, self.model.item(self.tree.selectedIndexes()[0].row(), 2).text()])])
+            cursor.execute('INSERT INTO sharings (subjectId, sections) VALUES (?, ?)', [self.id, json.dumps(
+                [self.section_id, self.model.item(self.tree.selectedIndexes()[0].row(), 2).text()])])
             self.shareId = cursor.lastrowid
         else:
             subjectID = self.model.item(self.tree.selectedIndexes()[0].row(), 2).text().split(',')

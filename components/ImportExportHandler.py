@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
-import csv
 from components import Database as db
+import csv
+
 
 def getCSVFile(type):
     fileName = QtWidgets.QFileDialog().getOpenFileName(None, 'Import CSV File', '', 'CSV File (*.csv)')
@@ -18,8 +19,9 @@ def getCSVFile(type):
         return False
     return content
 
+
 def saveAs():
-    fileName = QtWidgets.QFileDialog.getSaveFileName(None,  'Save GAS Scenario', '', 'GAS Scenario (*.gas)')
+    fileName = QtWidgets.QFileDialog.getSaveFileName(None, 'Save GAS Scenario', '', 'GAS Scenario (*.gas)')
     if not fileName[0]:
         return False
     with open(fileName[0], 'w+') as file:
@@ -27,6 +29,7 @@ def saveAs():
         for line in conn.iterdump():
             file.write('{}\n'.format(line))
         conn.close()
+
 
 def load():
     fileName = QtWidgets.QFileDialog().getOpenFileName(None, 'Load GAS Scenario', '', 'GAS Scenario (*.gas)')
@@ -39,6 +42,7 @@ def load():
         cursor.executescript(';'.join(['DROP TABLE IF EXISTS {}'.format(table[0]) for table in tables]))
         cursor.executescript(file.read())
         conn.close()
+
 
 def removeTables():
     conn = db.getConnection()

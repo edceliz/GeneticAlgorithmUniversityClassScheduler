@@ -1,13 +1,9 @@
 from PyQt5 import QtCore, QtWidgets
-from qt_ui.v1 import Generate as Parent
-from components import Database as db
-import pickle
+from components import Database as db, ResourceTracker, ScheduleParser, ScenarioComposer, GeneticAlgorithm
+from py_ui import Generate as Parent
 from sqlite3 import Binary
-from components import ScheduleParser
 from numpy import mean
-from components.utilities import ResourceTracker
-from components.utilities import GeneticAlgorithm
-from components.utilities import ScenarioComposer
+import pickle
 import copy
 
 
@@ -119,14 +115,16 @@ class Generate:
         ScheduleParser.ScheduleParser(self.table, data)
 
     def updateOperation(self, type):
-        self.toggleState(False)
+        if type == 1:
+            self.stopOperation()
+
 
     def updateTime(self):
         self.time = self.time.addSecs(1)
         self.parent.lblTime.setText('Elapsed Time: {}'.format(self.time.toString('hh:mm:ss')))
 
     def stopOperation(self):
-        self.toggleState()
+        self.toggleState(False)
         self.resourceWorker.terminate()
         self.geneticAlgorithm.terminate()
         self.timer.stop()

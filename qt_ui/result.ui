@@ -25,68 +25,235 @@
   <property name="windowTitle">
    <string>Result Viewer</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QComboBox" name="comboBox">
-       <item>
-        <property name="text">
-         <string>Section View</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Instructor View</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Room View</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QListWidget" name="listWidget"/>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QComboBox" name="comboBox_2">
-         <item>
-          <property name="text">
-           <string>Sample Scenario 1</string>
-          </property>
-         </item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Chromosome</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QComboBox" name="cmbChromosome">
+            <item>
+             <property name="text">
+              <string>Chromosome 1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Chromosome 2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Chromosome 3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Chromosome 4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Chromosome 5</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_5">
-         <property name="text">
-          <string>PushButton</string>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Category</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QComboBox" name="cmbCategory">
+            <item>
+             <property name="text">
+              <string>Section</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Room</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Instructor</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Entry</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QComboBox" name="cmbEntry"/>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>TextLabel</string>
+      <widget class="QGroupBox" name="groupBox_6">
+       <property name="title">
+        <string>Operation</string>
        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QPushButton" name="btnExport">
+          <property name="text">
+           <string>Export Result</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QTableView" name="tableSchedule">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Chromosome Details</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QLabel" name="lblFit">
+            <property name="text">
+             <string>Total Fitness:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblSbj">
+            <property name="text">
+             <string>Subject Placement: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblSecRest">
+            <property name="text">
+             <string>Section Rest: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblSecIdle">
+            <property name="text">
+             <string>Section Idle Time:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblInstrRest">
+            <property name="text">
+             <string>Instructor Rest: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblInstrLoad">
+            <property name="text">
+             <string>Instructor Load:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblLunch">
+            <property name="text">
+             <string>Lunch Break:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblMeet">
+            <property name="text">
+             <string>Meeting Pattern: </string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupProblems">
+         <property name="title">
+          <string>System Message</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QLabel" name="lblTime">
+            <property name="text">
+             <string>Generation Time:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblCPU">
+            <property name="text">
+             <string>Average CPU Usage:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblMemory">
+            <property name="text">
+             <string>Average Mem Usage:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QTableView" name="tableResult">
        <property name="minimumSize">
         <size>
          <width>698</width>
-         <height>476</height>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>698</width>
+         <height>3000</height>
         </size>
        </property>
       </widget>

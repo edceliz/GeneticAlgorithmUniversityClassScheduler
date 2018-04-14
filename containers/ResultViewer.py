@@ -1,31 +1,28 @@
-from PyQt5 import QtWidgets, QtGui
-from components import Database as db
+from PyQt5 import QtWidgets
+from components import Settings, Database as db, ScheduleParser
+from py_ui import Result as Parent
 import pickle
 import json
 import csv
 import copy
-from qt_ui.v1 import Result as Parent
-from components import ScheduleParser
-from components import Settings
 
 
 class ResultViewer:
-    def __init__(self, result):
-        self.result = result
+    def __init__(self):
         self.dialog = dialog = QtWidgets.QDialog()
         # Initialize custom dialog
         self.parent = parent = Parent.Ui_Dialog()
         # Add parent to custom dialog
         parent.setupUi(dialog)
-        self.table = table = self.parent.tableResult
+        self.table = self.parent.tableResult
         self.run = True
         self.settings = Settings.getSettings()
-        if not len(self.result['data']):
-            self.getLastResult()
-        self.parseResultDetails()
-        self.connectWidgets()
-        self.updateTable(0)
+        self.result = { 'data': [] }
+        self.getLastResult()
         if self.run:
+            self.parseResultDetails()
+            self.connectWidgets()
+            self.updateTable(0)
             dialog.exec_()
 
     def getLastResult(self):

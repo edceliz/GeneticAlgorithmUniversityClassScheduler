@@ -1,0 +1,64 @@
+subjects
+code,title,type,hours,splittable
+ENGL101,Communication Skills 1,lec,3,1
+MATH101,College Algebra,lec,3,1
+MATH110,College Trigonometry,lec,3,1
+CS101,Introduction to Computing,lec,2,1
+CS101L,Introduction to Computing,lab,2,0
+COMP101,Knowledge Work Software and Presentation Skills,lec,2,1
+COMP101L,Knowledge Work Software and Presentation Skills,lab,2,0
+ETHNS101,Euthenics 1,lec,1,1
+SSCI101,Society & Culture with FP/DA & Prevn/HIV/SARS Prevn,lec,3,1
+MATH111,Plane and Spherical Trigonometry,lec,3,1
+ENG101,Engineering Drawing,lab,1,1
+NSTP101,National Service Training Program 1,lec,2,0
+PHYED101,Physical Fitness,lec,2,1
+ENGL301,"Technical, Scientific and Business English",lec,3,1
+ECON101,Principles of Economics with Agrarian Reform & Taxation,lec,3,1
+MATH215,Calculus with Analytic Geometry 3,lec,4,1
+COMP134,Current Trends in IT (STCABS),lec,2,1
+COMP134L,Current Trends in IT (STCABS),lab,1,0
+CS202,Computer Programming 2,lec,2,1
+CS202L,Computer Programming 2,lab,1,0
+PHYED111,Rhythmic Activities,lec,2,0
+ENGL202,Speech Communication 2,lec,3,1
+MATH231,Discrete Mathematics,lec,3,1
+MATH212,Integral Calculus,lec,4,1
+NSCI112,College Physics 2,lec,2,1
+NSCI112L,College Physics 2,lab,1,0
+CS201,Computer Programming 1,lec,2,1
+CS201L,Computer Programming 1,lab,1,0
+PHYED131,Team Sports,lec,2,0
+IT212,CISCO 2,lec,2,1
+IT212L,CISCO 2,lab,1,0
+CS352,Database Management System 2,lec,2,1
+CS352L,Database Management System 2,lab,1,0
+IT301,System Analysis and Design,lec,2,1
+IT301L,System Analysis and Design,lab,1,0
+CS411,Professional Ethics in IT,lec,3,1
+CS372,Introduction to Software Engineering,lec,2,1
+CS372L,Introduction to Software Engineering,lab,1,0
+CS377,Application Lifecycle Mgmt (HP),lec,2,1
+CS377L,Application Lifecycle Mgmt (HP),lab,1,0
+IT211,CISCO 1,lec,2,1
+IT211L,CISCO 1,lab,1,0
+CS311,Principles of Programming Language with Compiler,lec,2,1
+CS311L,Principles of Programming Language with Compiler,lab,1,0
+CS312,Automata and Formal Language Theory,lec,3,1
+CS361,Algorithm Analysis and Design,lec,3,1
+CS376,Load Testing (HP),lec,2,1
+CS376L,Load Testing (HP),lab,1,0
+HUMA102,Introduction to Symbolic Logic,lec,3,1
+ENG211,Mechanics of Deformable Bodies,lec,3,1
+ECE301,Principles of Communication,lec,3,1
+ECE301L,Principles of Communication,lab,1,1
+CPE301,Advanced Logic Circuits Design,lec,3,1
+CPE301L,Advanced Logic Circuits Design,lab,1,0
+EE311,Feedback and Control System,lec,3,1
+EE311L,Feedback and Control System,lab,1,0
+CS331,"Computer System Org., Archtr. & Assembly Lang. Prog.",lec,3,1
+CS331L,"Computer System Org., Archtr. & Assembly Lang. Prog.",lab,1,0
+HUMA101,Philosophy of Man,lec,3,1
+PSYC101,General Psychology,lec,3,1
+ENG302,Engineering Management,lec,3,1
+CPE400,CpE Design Project 1,lec,1,1

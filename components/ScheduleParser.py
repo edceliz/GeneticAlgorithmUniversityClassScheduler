@@ -1,8 +1,7 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-from components import Settings
-from components import TableModel
+from components import Settings, TableModel, Utilities
 import json
-from components import Utilities
+
 
 class ScheduleParser:
     # Section / Room View
@@ -20,7 +19,7 @@ class ScheduleParser:
         header.append(timeslots[settings['starting_time']:settings['ending_time'] + 1])
         temporaryData = []
         for i in range(settings['ending_time'] + 1 - settings['starting_time']):
-            temporaryData.append(['','','','','',''])
+            temporaryData.append(['', '', '', '', '', ''])
         self.model = ScheduleParserModel(header, temporaryData)
         table.setModel(self.model)
         table.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -46,11 +45,12 @@ class ScheduleParser:
     def subjectGenerator(self):
         print(self.settings['starting_time'])
 
+
 class ScheduleParserModel(TableModel.TableModel):
     def __init__(self, header, data):
         super().__init__(header, data)
 
-    def setData(self, index, value, role = None):
+    def setData(self, index, value, role=None):
         if not index.isValid():
             return False
         elif role is None:

@@ -1,11 +1,11 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
-from components import Settings
-from components import TableModel
+from components import Settings, TableModel
 import json
+
 
 # Used for displaying toggable timetable
 class Timetable:
-    def __init__(self, table, data = False):
+    def __init__(self, table, data=False):
         self.table = table
         header = [['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']]
         with open('timeslots.json') as json_file:
@@ -40,6 +40,7 @@ class Timetable:
     def getData(self):
         return self.data
 
+
 # Timetable model that provides color support for availability status
 class TimetableModel(TableModel.TableModel):
     def __init__(self, header, data):
@@ -50,12 +51,13 @@ class TimetableModel(TableModel.TableModel):
             return QtCore.QVariant()
         elif role == QtCore.Qt.BackgroundRole:
             if self.data[index.row()][index.column()] == 'Available':
-                return QtGui.QBrush(QtGui.QColor(46,204,113))
+                return QtGui.QBrush(QtGui.QColor(46, 204, 113))
             else:
                 return QtGui.QBrush(QtGui.QColor(231, 76, 60))
         elif role != QtCore.Qt.DisplayRole:
             return QtCore.QVariant()
         return self.data[index.row()][index.column()]
+
 
 def generateRawTable():
     settings = Settings.getSettings()

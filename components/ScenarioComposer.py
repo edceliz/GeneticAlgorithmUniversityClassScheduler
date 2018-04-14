@@ -1,6 +1,6 @@
 from components import Database as db
-import sqlite3
 import json
+
 
 class ScenarioComposer:
     def __init__(self):
@@ -42,7 +42,7 @@ class ScenarioComposer:
         return sharings
 
     def listToDictionary(self, toDict):
-        return {entry[0]:list(entry[1:]) for entry in toDict}
+        return {entry[0]: list(entry[1:]) for entry in toDict}
 
     def jsonToList(self, dictionary, index):
         for key, value in dictionary.items():

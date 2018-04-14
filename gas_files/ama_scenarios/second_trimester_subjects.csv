@@ -1,0 +1,66 @@
+subjects
+code,title,type,hours,splittable
+ENGL102,Communication Skills 2,lec,3,1
+PSYC101,General Psychology,lec,3,1
+FILI101,Komunikasyon sa Akademikong Filipino,lec,3,1
+MATH213,Calculus with Analytic Geometry 1,lec,3,1
+CS201,Computer Programming 1,lec,2,1
+CS201L,Computer Programming 1,lab,1,0
+COMP111,Introdction to Information Systems,lec,2,1
+COMP111L,Introdction to Information Systems,lab,1,0
+ETHNS102,Euthenics 2,lec,1,1
+FILI101,Komunikasyon sa Akademikong Filipino,lec,3,1
+MATH102,Advanced Algebra,lec,2,1
+MATH112,Solid Mensuration,lec,3,1
+MATH113,Analytic Geometry,lec,3,1
+NSCI101,General Chemistry,lec,2,1
+NSCI101L,General Chemistry,lab,1,0
+PHYED111,Rhythmic Activities,lec,2,0
+NSTP102,National Service Training Program 2,lec,2,0
+HUMA111,Art Appreciation,lec,3,1
+ENGL311,Philippine Literature,lec,3,1
+MATH200,Statistics and Probability,lec,3,1
+CS302,Object Oriented Programming,lec,2,1
+CS302L,Object Oriented Programming,lab,1,0
+CS301,Computer Programming 3 (Web Programming & Dev't),lec,2,1
+CS301L,Computer Programming 3 (Web Programming & Dev't),lab,1,0
+CS332,"Computer System Org., Archtr. & Assembly Lang. Prog.",lec,2,1
+CS332L,"Computer System Org., Archtr. & Assembly Lang. Prog.",lab,1,0
+MATH232,Discrete Structures 1,lec,3,1
+PHYED121,Individual/Dual Sports,lec,2,0
+ENGL203,Speech Communication 3,lec,3,1
+MATH221,Differential Equations,lec,3,1
+ENG201,Statics of Rigid Bodies,lec,3,1
+EE201,Electric Circuits Theory 1,lec,3,1
+EE201L,Electric Circuits Theory 1,lab,1,0
+ECE201,Electronics Devices and Circuits,lec,3,1
+ECE201L,Electronics Devices and Circuits,lab,1,0
+IT213,CISCO 3,lec,2,1
+IT213L,CISCO 3,lab,1,0
+CS421L,IT Practicum,lab,1,0
+CS376,Load Testing (HP),lec,2,1
+CS376L,Load Testing (HP),lab,1,0
+RSCH400,Research 1A,lec,1,1
+SSCI111,Life & Works of Jose Rizal,lec,3,1
+CS342,Principles of Operating Systems and its Applications,lec,2,1
+CS342L,Principles of Operating Systems and its Applications,lab,1,0
+CS351,Database Management System 1,lec,2,1
+CS351L,Database Management System 1,lab,1,0
+CPE202,Logic Design & Digital Computer Circuits,lec,2,1
+CPE202L,Logic Design & Digital Computer Circuits,lab,1,0
+CS279,Unified Functional Testing (HP),lec,2,1
+CS279L,Unified Functional Testing (HP),lab,1,0
+ECON101,Principles of Economics with Agrarian Reform & Taxation,lec,3,1
+ENG111L,Computer Aided Drafting,lab,1,0
+ENG231,Safety Management,lec,3,1
+ECE231,"Signals, Spectra & Digital Signal Processing",lec,3,1
+ECE231L,"Signals, Spectra & Digital Signal Processing",lab,1,0
+ECE311,Data Communications 1,lec,3,1
+ECE311L,Data Communications 1,lab,1,0
+CPE311,Computer System Architecture,lec,3,1
+CPE311L,Computer System Architecture,lab,1,0
+CPE101L,Computer Hardware Fundamentals,lab,1,0
+CS371,Instroduction to Software Engineering,lec,3,1
+PSCI101,"Philippine History, Politics, Governance & Constitution",lec,3,1
+ENTR101,Entrepreneurship,lec,3,1
+CPE401L,CpE Design Project 2,lab,1,0

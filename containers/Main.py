@@ -1,16 +1,9 @@
-from components import Instructor
-from components import ResultViewer
-from components import Room
-from components import Section
-from components import Subject
-from components import Generate
-from components import Settings
-from components.utilities import ImportExportHandler as ioHandler
-from qt_ui.v1 import Main
-import json
-from components import Timetable
 from PyQt5 import QtCore
-from components import Database
+from containers import Generate, Instructor, ResultViewer, Room, Subject, Section
+from components import Settings, Database, Timetable, ImportExportHandler as ioHandler
+from py_ui import Main
+import json
+
 
 class MainWindow(Main.Ui_MainWindow):
     def __init__(self, parent):
@@ -28,9 +21,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.loadSettings()
         self.handleSettings()
         self.drawTrees()
-        # Tab change listener
         self.tabWidget.currentChanged.connect(self.tabListener)
-        # Select default tab index
         self.tabWidget.setCurrentIndex(0)
 
     # Connect Main component buttons to respective actions
@@ -104,7 +95,7 @@ class MainWindow(Main.Ui_MainWindow):
         conn.close()
 
     def openResult(self):
-        ResultViewer.ResultViewer(self.result)
+        ResultViewer.ResultViewer()
 
     def openGenerate(self):
         result = Generate.Generate()
@@ -138,7 +129,8 @@ class MainWindow(Main.Ui_MainWindow):
             subjects.pop(0)
             subjects.pop(0)
             for subject in subjects:
-                Subject.Subject.insertSubject([subject[1], float(subject[3]), subject[0], '', json.dumps([]), int(subject[4]), subject[2]])
+                Subject.Subject.insertSubject(
+                    [subject[1], float(subject[3]), subject[0], '', json.dumps([]), int(subject[4]), subject[2]])
         self.tabListener(2)
 
     def saveAs(self):
@@ -184,7 +176,8 @@ class MainWindow(Main.Ui_MainWindow):
         self.editMaxPop.valueChanged.connect(self.handleMaxPop)
         self.editMaxGen.valueChanged.connect(lambda value: self.updateSettings('maximum_generations', value))
         self.editMaxCreation.valueChanged.connect(lambda value: self.updateSettings('generation_tolerance', value))
-        self.editMut.valueChanged.connect(lambda value: self.updateSettings('mutation_rate_adjustment_trigger', round(value, 2)))
+        self.editMut.valueChanged.connect(
+            lambda value: self.updateSettings('mutation_rate_adjustment_trigger', round(value, 2)))
         self.editMaxFit.valueChanged.connect(lambda value: self.updateSettings('maximum_fitness', value))
         self.editElite.valueChanged.connect(lambda value: self.updateSettings('elite_percent', round(value / 100, 2)))
         self.editDev.valueChanged.connect(lambda value: self.updateSettings('deviation_tolerance', value))
@@ -192,8 +185,10 @@ class MainWindow(Main.Ui_MainWindow):
         self.editLun.valueChanged.connect(lambda value: self.handleMatrix('lunch_break', value, self.editLun))
         self.editSec.valueChanged.connect(lambda value: self.handleMatrix('student_rest', value, self.editSec))
         self.editIdle.valueChanged.connect(lambda value: self.handleMatrix('idle_time', value, self.editIdle))
-        self.editInstrRest.valueChanged.connect(lambda value: self.handleMatrix('instructor_rest', value, self.editInstrRest))
-        self.editInstrLoad.valueChanged.connect(lambda value: self.handleMatrix('instructor_load', value, self.editInstrLoad))
+        self.editInstrRest.valueChanged.connect(
+            lambda value: self.handleMatrix('instructor_rest', value, self.editInstrRest))
+        self.editInstrLoad.valueChanged.connect(
+            lambda value: self.handleMatrix('instructor_load', value, self.editInstrLoad))
         self.editMeet.valueChanged.connect(lambda value: self.handleMatrix('meeting_pattern', value, self.editMeet))
 
     def handleStartingTime(self, time):
@@ -230,7 +225,7 @@ class MainWindow(Main.Ui_MainWindow):
         self.matrix = self.settings['evaluation_matrix']
         self.lblTotal.setText('Total: {}%'.format(self.matrixSum))
 
-    def updateSettings(self, key, value, secondKey = False):
+    def updateSettings(self, key, value, secondKey=False):
         Settings.setSettings(key, value, secondKey)
         self.settings = Settings.getSettings()
 

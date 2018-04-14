@@ -1,0 +1,68 @@
+subjects
+code,title,type,hours,splittable
+ENGL201,Speech Communication 1,lec,3,1
+FILI102,Pagbasa at Pagsulat Tungo sa Pananaliksik,lec,3,1
+PSCI101,"Philippine History, Politics, Governance & Constitution",lec,3,1
+MATH214,Calculus with Analytic Geometry 2,lec,4,1
+NSCI101,General Chemistry,lec,2,1
+NSCI101L,General Chemistry,lab,1,0
+COMP121,Introduction to World Wide Web,lec,2,1
+COMP121L,Introduction to World Wide Web,lab,1,0
+PHYED101,Physical Fitness,lec,2,1
+MATH211,Differential Calculus,lec,4,1
+NSCI111,College Physics 1,lec,2,1
+NSCI111L,College Physics 1,lab,1,0
+CS101,Introduction to Computing,lec,2,1
+CS101L,Introduction to Computing,lab,1,0
+PHYED121,Individual/Dual Sports,lec,2,0
+HUMA101,Philosophy of Man,lec,3,1
+CS321,Data Structures & Algorithm Analysis,lec,2,1
+CS321L,Data Structures & Algorithm Analysis,lab,1,0
+MATH233,Discrete Structures 2,lec,3,1
+CS377,Application Lifecycle Mgmt (HP),lec,2,1
+CS377L,Application Lifecycle Mgmt (HP),lab,1,0
+PHYED131,Team Sports,lec,2,0
+CS342,Principles of Operating Systems and its Applications,lec,2,1
+CS342L,Principles of Operating Systems and its Applications,lab,1,0
+CS351,Database Management System 1,lec,2,1
+CS351L,Database Management System 1,lab,1,0
+ACTG100,Fundamental of Accounting Theory & Practice 1A,lec,2,1
+ACTG100L,Fundamental of Accounting Theory & Practice 1A,lab,1,0
+IT211,CISCO 1,lec,2,1
+IT211L,CISCO 1,lab,1,0
+MATH311,Advanced Engineering Mathematics,lec,3,1
+ENG202,Dynamics of Rigid Bodies,lec,3,1
+EE202,Electric Circuits Theory 2,lec,3,1
+EE202L,Electric Circuits Theory 2,lab,1,0
+ECE202,Electronics Circuits Analysis and Design,lec,3,1
+ECE202L,Electronics Circuits Analysis and Design,lab,1,0
+CPE201,Logic Circuits & Switching Theory,lec,3,1
+CPE201L,Logic Circuits & Switching Theory,lab,1,0
+IT214,CISCO 4,lec,2,1
+IT214L,CISCO 4,lab,1,0
+SSCI111,Life & Works of Jose Rizal,lec,3,1
+CS332,Multimedia Systems,lec,2,1
+CS332L,Multimedia Systems,lab,1,0
+IT401,IT Capstone Project,lec,1,0
+CS379,Unified Functional Testing (HP),lec,2,1
+CS379L,Unified Functional Testing (HP),lab,1,0
+CS362,Modelling and Simulation,lec,2,1
+CS362L,Modelling and Simulation,lab,1,0
+CS411,Professional Ethics in IT,lec,3,1
+CS421L,CS Practicum,lab,1,0
+CS401,CS Thesis,lec,1,0
+ENGL301,"Technical, Scientific and Business English",lec,3,1
+ENG301,Engineering Economy,lec,3,1
+ECE312,Data Communications 2,lec,3,1
+ECE312L,Data Communications 2,lab,1,0
+CPE312,Microprocessor Systems,lec,3,1
+CPE312L,Microprocessor Systems,lab,1,0
+CPE321L,Computer Engineering Drafting and Design,lab,1,0
+CS302,Object Oriented Programming,lec,2,1
+CS302L,Object Oriented Programming,lab,1,0
+CS341,Principles of Operating Systems and its Applications,lec,3,1
+CS341L,Principles of Operating Systems and its Applications,lab,1,0
+ENG421,Engineering Practicum,lec,1,1
+ENG241,Introduction to Environmental Engineering,lec,3,1
+ENG431L,Seminars and Field Trip,lab,1,0
+ENG411,Engineering Ethics and Computer Laws,lec,2,1

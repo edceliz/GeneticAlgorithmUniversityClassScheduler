@@ -1,0 +1,13 @@
+rooms
+name,type
+Room 400A,lec
+Room 400B,lec
+Room 401,lec
+Room 402,lec
+Room 403,lec
+Room 404, lec
+Drawing Room,lec
+Library,lec
+CL1,lab
+CL2,lab
+CL3,lab

@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets, QtGui
-from qt_ui.v1 import Subject as Parent
-from components import Timetable
 from components import Database as db
+from py_ui import Subject as Parent
 import json
 
 

@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -151,4 +152,3 @@ class Ui_Dialog(object):
         self.lblTime.setText(_translate("Dialog", "Generation Time:"))
         self.lblCPU.setText(_translate("Dialog", "Average CPU Usage:"))
         self.lblMemory.setText(_translate("Dialog", "Average Mem Usage:"))
-
