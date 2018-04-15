@@ -46,9 +46,6 @@ class GeneticAlgorithm(QtCore.QThread):
         self.stopWhenMaxFitnessAt = self.settings['maximum_fitness']
         super().__init__()
 
-    def __del__(self):
-        self.wait()
-
     def initialization(self):
         # Generate population based on minimum population
         self.generateChromosome(self.settings['minimum_population'])
@@ -475,7 +472,7 @@ class GeneticAlgorithm(QtCore.QThread):
             instructorLoadAverage += (instructor[1] / instructor[0]) * 100
         if not len(activeInstructors):
             return 100.00
-        instructorLoadAverage = round(((instructorLoadAverage / len(activeInstructors)) / 50) * 100, 2)
+        instructorLoadAverage = round(instructorLoadAverage / len(activeInstructors), 2)
         return instructorLoadAverage
 
     def getAllFitness(self):
@@ -662,7 +659,6 @@ class GeneticAlgorithm(QtCore.QThread):
         # Add parent B subjects in random manner
         parentBSharings = list(parentBShareables['sharings'].keys())
         np.random.shuffle(parentBSharings)
-
         for id in parentBSharings:
             sharing = parentBShareables['sharings'][id]
             if not len(sharing):
@@ -735,7 +731,7 @@ class GeneticAlgorithm(QtCore.QThread):
             else:
                 mutating = ['sharing', np.random.choice(mutationCandidates['sharings'])]
             # Replicate chromosome except the mutating gene
-            for sharing in mutationCandidates['sharings']:
+            for sharing in mutationCandidates['sharings'] if 'sharings' in mutationCandidates else []:
                 if mutating[0] == 'sharing' and sharing == mutating[1]:
                     continue
                 details = chromosome.data['sharings'][sharing]
@@ -760,13 +756,14 @@ class GeneticAlgorithm(QtCore.QThread):
         self.statusSignal.emit('Initializing')
         self.initialization()
         generation = 0
-        while (True):
+        runThread = True
+        while (runThread):
             if self.running:
                 generation += 1
                 if self.settings['maximum_generations'] < generation:
                     self.statusSignal.emit('Hit Maximum Generations')
                     self.operationSignal.emit(0)
-                    self.running = False
+                    self.running = runThread = False
                     break
                 self.statusSignal.emit('Preparing Evaluation')
                 self.evaluate()
@@ -776,7 +773,7 @@ class GeneticAlgorithm(QtCore.QThread):
                 if self.highestFitness >= self.settings['maximum_fitness']:
                     self.statusSignal.emit('Reached the Highest Fitness')
                     self.operationSignal.emit(1)
-                    self.running = False
+                    self.running = runThread = False
                     break
                 self.statusSignal.emit('Tweaking Environment')
                 self.adapt()
@@ -786,6 +783,7 @@ class GeneticAlgorithm(QtCore.QThread):
                 self.crossover()
                 self.statusSignal.emit('Preparing Mutation')
                 self.mutation()
+        return True
 
 
 class Chromosome:

@@ -3,17 +3,11 @@ from containers import Generate, Instructor, ResultViewer, Room, Subject, Sectio
 from components import Settings, Database, Timetable, ImportExportHandler as ioHandler
 from py_ui import Main
 import json
-
+import gc
 
 class MainWindow(Main.Ui_MainWindow):
     def __init__(self, parent):
         super().__init__()
-        matrixSum = 0
-        result = {
-            'data': [],
-            'time': None,
-            'resource': None
-        }
         self.parent = parent
         self.setupUi(parent)
         self.connectButtons()
@@ -92,12 +86,15 @@ class MainWindow(Main.Ui_MainWindow):
             disabled = True
         self.timeStarting.setDisabled(disabled)
         self.timeEnding.setDisabled(disabled)
+        self.btnScenGenerate.setDisabled(not disabled)
         conn.close()
 
     def openResult(self):
         ResultViewer.ResultViewer()
 
     def openGenerate(self):
+        print(gc.get_count())
+        gc.collect()
         result = Generate.Generate()
         if not len(result.topChromosomes):
             return False

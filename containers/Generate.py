@@ -29,7 +29,7 @@ class Generate:
         composer = ScenarioComposer.ScenarioComposer()
         composer = composer.getScenarioData()
         self.data.update(composer)
-        self.dialog = dialog = QtWidgets.QDialog()
+        self.dialog = dialog = QtWidgets.QDialog(parent=None)
         # Initialize custom dialog
         self.parent = parent = Parent.Ui_Dialog()
         # Add parent to custom dialog
@@ -66,7 +66,7 @@ class Generate:
 
     def startWorkers(self):
         self.resourceWorker = ResourceTrackerWorker()
-        self.resourceWorker.signal.connect(lambda resource: self.updateResource(resource))
+        self.resourceWorker.signal.connect(self.updateResource)
         self.resourceWorker.start()
         self.geneticAlgorithm = GeneticAlgorithm.GeneticAlgorithm(self.data)
         self.geneticAlgorithm.statusSignal.connect(self.updateStatus)
@@ -126,6 +126,7 @@ class Generate:
     def stopOperation(self):
         self.toggleState(False)
         self.resourceWorker.terminate()
+        self.resourceWorker.runThread = False
         self.geneticAlgorithm.terminate()
         self.timer.stop()
         if len(self.topChromosomes):
@@ -166,6 +167,7 @@ class Generate:
 class ResourceTrackerWorker(QtCore.QThread):
     signal = QtCore.pyqtSignal(object)
     running = True
+    runThread = True
 
     def __init__(self):
         super().__init__()
@@ -174,10 +176,11 @@ class ResourceTrackerWorker(QtCore.QThread):
         self.wait()
 
     def run(self):
-        while (True):
+        while (self.runThread):
             self.sleep(1)
             if self.running is True:
                 cpu = ResourceTracker.getCPUUsage()
                 memory = ResourceTracker.getMemoryUsage()
                 memory = [ResourceTracker.getMemoryPercentage(memory), ResourceTracker.byteToMegabyte(memory[0])]
                 self.signal.emit([cpu, memory])
+        return True
