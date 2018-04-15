@@ -93,7 +93,6 @@ class MainWindow(Main.Ui_MainWindow):
         ResultViewer.ResultViewer()
 
     def openGenerate(self):
-        print(gc.get_count())
         gc.collect()
         result = Generate.Generate()
         if not len(result.topChromosomes):

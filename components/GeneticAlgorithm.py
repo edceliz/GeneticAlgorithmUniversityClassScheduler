@@ -388,6 +388,8 @@ class GeneticAlgorithm(QtCore.QThread):
                                                                                                          threeHours - 6: threeHours]:
                         hasViolated = True
                         noRestDays += 1
+        if not instructorTeachingDays:
+            return 100.00
         return round(((instructorTeachingDays - noRestDays) / instructorTeachingDays) * 100, 2)
 
     # = ((sectionDays - idleDays) / sectionDays) * 100
