@@ -255,8 +255,8 @@ class GeneticAlgorithm(QtCore.QThread):
         idleTime = self.evaluateStudentIdleTime(chromosome)
         meetingPattern = self.evaluateMeetingPattern(chromosome)
         instructorLoad = self.evaluateInstructorLoad(chromosome)
-        chromosome.fitnessDetails = [subjectPlacement, lunchBreak, studentRest, instructorRest, idleTime,
-                                     meetingPattern, instructorLoad]
+        chromosome.fitnessDetails = copy.deepcopy([subjectPlacement, lunchBreak, studentRest, instructorRest, idleTime,
+                                     meetingPattern, instructorLoad])
         matrix = self.settings['evaluation_matrix']
         return round(
             (subjectPlacement * matrix['subject_placement'] / 100) +
@@ -762,11 +762,6 @@ class GeneticAlgorithm(QtCore.QThread):
         while (runThread):
             if self.running:
                 generation += 1
-                if self.settings['maximum_generations'] < generation:
-                    self.statusSignal.emit('Hit Maximum Generations')
-                    self.operationSignal.emit(0)
-                    self.running = runThread = False
-                    break
                 self.statusSignal.emit('Preparing Evaluation')
                 self.evaluate()
                 self.detailsSignal.emit(
@@ -774,6 +769,11 @@ class GeneticAlgorithm(QtCore.QThread):
                      round(self.pastAverageFitness, 2), self.highestFitness, self.lowestFitness])
                 if self.highestFitness >= self.settings['maximum_fitness']:
                     self.statusSignal.emit('Reached the Highest Fitness')
+                    self.operationSignal.emit(1)
+                    self.running = runThread = False
+                    break
+                if self.settings['maximum_generations'] < generation - 1:
+                    self.statusSignal.emit('Hit Maximum Generations')
                     self.operationSignal.emit(1)
                     self.running = runThread = False
                     break
@@ -785,7 +785,6 @@ class GeneticAlgorithm(QtCore.QThread):
                 self.crossover()
                 self.statusSignal.emit('Preparing Mutation')
                 self.mutation()
-        return True
 
 
 class Chromosome:

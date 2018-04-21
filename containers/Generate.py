@@ -145,7 +145,8 @@ class Generate:
             cursor.execute('INSERT INTO results (content) VALUES (?)', [Binary(
                 pickle.dumps({'data': [chromosome[0].data for chromosome in self.topChromosomes],
                               'meta': self.meta,
-                              'time': self.time.toString('hh:mm:ss'), 'resource': self.totalResource,
+                              'time': self.time.toString('hh:mm:ss'),
+                              'resource': self.totalResource,
                               'rawData': self.data},
                              pickle.HIGHEST_PROTOCOL))])
             conn.commit()
